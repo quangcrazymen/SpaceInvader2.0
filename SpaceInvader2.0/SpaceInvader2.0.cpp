@@ -2,10 +2,27 @@
 //
 
 #include <iostream>
+#include <GL/glew.h>
+#include <SDL.h>
+#include <matrix.hpp>
+#include "Game.h"
 
-int main()
+union RecordType    // Declare a simple union type
 {
+    char   ch;
+    int    i;
+    long   l;
+    float  f;
+    double d;
+    int* int_ptr;
+};
+
+int main(int agrc, char* argv[])
+{
+    Game a;
     std::cout << "Hello World!\n";
+    std::cout << "Complation test" << std::endl;
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
