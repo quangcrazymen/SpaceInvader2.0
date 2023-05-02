@@ -1,5 +1,7 @@
 #include "Game.h"
-
+#include "Utils/Shader.h"
+#include "Utils/VertexArray.h"
+#include "Utils/Texture.h"
 bool Game::Initialize()
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
@@ -63,11 +65,31 @@ bool Game::Initialize()
 
 void Game::RunLoop()
 {
+	float vertices[] = {
+		-0.5f,  0.5f, 0.f, 0.f, 0.f, // top left
+		 0.5f,  0.5f, 0.f, 1.f, 0.f, // top right
+		 0.5f, -0.5f, 0.f, 1.f, 1.f, // bottom right
+		-0.5f, -0.5f, 0.f, 0.f, 1.f  // bottom left
+	};
+
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	VertexArray mSpriteVerts = VertexArray(vertices, 4, indices, 6);
+	mSpriteVerts.Enable();
+	Shader shader;
+	shader.Load("Shaders/Shader.vert", "Shaders/Shader.frag");
+	// Load Texture
+	Texture texture;
+	texture.Load("Assets/graphics/a1.png");
+	texture.Enable();
 	while (mIsRunning)
 	{
 		ProcessInput();
 		UpdateGame();
-		GenerateOutput();
+		GenerateOutput(shader,mSpriteVerts);
 	}
 }
 
@@ -83,11 +105,28 @@ void Game::ProcessInput() {
 	}
 }
 void Game::UpdateGame() {
-	Uint32 deltaTime = (SDL_GetTicks() - mTicksCount) / 1000;
-	std::cout << deltaTime << '\n';
+	// lock fps :)
+	while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
+		;
+	Uint32 deltaTime = SDL_GetTicks() - mTicksCount;
+	//std::cout << 1000/ deltaTime << '\n';
 	mTicksCount = SDL_GetTicks();
 }
 
-void Game::GenerateOutput() {
+void Game::GenerateOutput(Shader& shader,VertexArray& vert) {
+	// Set the clear color to grey
+	glClearColor(0.86f, 0.86f, 0.86f, 1.0f);
+	// Clear the color buffer
+	glClear(GL_COLOR_BUFFER_BIT);
 
+	// Draw all sprite components
+	// Enable alpha blending on the color buffer
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	shader.Enable();
+	vert.Enable();
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	SDL_GL_SwapWindow(mWindow);
 }

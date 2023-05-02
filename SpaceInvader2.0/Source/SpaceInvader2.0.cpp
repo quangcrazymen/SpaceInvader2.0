@@ -9,9 +9,14 @@
 
 int main(int agrc, char* argv[])
 {
-    Game a;
-    std::cout << "Hello World!\n";
-    std::cout << "Complation test" << std::endl;
+    auto testMat = glm::mat3(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    std::cout << testMat[0][2] << std::endl;
+
+    Game game;
+    if (game.Initialize()) {
+        game.RunLoop();
+    }
+
     return 0;
 }
 

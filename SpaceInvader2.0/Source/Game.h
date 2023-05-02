@@ -4,21 +4,20 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include "Utils/Shader.h"
+#include "Utils/VertexArray.h"
 
 class Game
 {
 public:
-	//bool Initialize();
-	//void Update();
-	//void Render();;;
 	// https://stackoverflow.com/questions/29424877/couple-of-questions-about-sdl-window-and-unique-ptr
 	Game():mWindow(nullptr),mContext(NULL){
-
+		std::cout << "Game constructed" << std::endl;
 	}
 	bool Initialize();
 	void ProcessInput();
 	void UpdateGame();
-	void GenerateOutput();
+	void GenerateOutput(Shader &shad,VertexArray &vert);
 	void RunLoop();
 	~Game() {
 		std::cout << "Game destructed" << std::endl;

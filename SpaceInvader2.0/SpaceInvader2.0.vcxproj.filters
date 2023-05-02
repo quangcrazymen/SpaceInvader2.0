@@ -21,6 +21,15 @@
     <ClCompile Include="Source\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Utils\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\VertexArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game.h">
@@ -32,9 +41,67 @@
     <ClInclude Include="Include\SOIL\SOIL2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utils\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\VertexArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Lib\glew32.dll" />
     <None Include="Lib\SDL2.dll" />
+    <None Include="Shaders\Shader.vert" />
+    <None Include="Shaders\Shader.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\graphics\a1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\background.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\BlueExplosionSprite.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\bullet.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\Bullet1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\Bullet2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\bulletRemake.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\bulletRemake2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\coin.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\ExplosionSprite.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\GreenExplosionSprite.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\healthPotion.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\invader1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\player.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\graphics\playership.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
