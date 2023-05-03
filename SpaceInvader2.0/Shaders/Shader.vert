@@ -4,6 +4,8 @@
 // Uniforms for world transform and view-proj
 //uniform mat4 uWorldTransform;
 //uniform mat4 uViewProj;
+uniform mat4 projection;
+uniform mat4 model;
 
 // Attribute 0 is position, 1 is tex coords.
 layout(location = 0) in vec3 inPosition;
@@ -14,9 +16,9 @@ out vec2 fragTexCoord;
 
 void main()
 {
-	// Convert position to homogeneous coordinates
+	// Convert position to homogeneous 
 	vec4 pos = vec4(inPosition, 1.0);
-	gl_Position = pos;
+	gl_Position = projection * model * pos;
 	// Transform position to world space, then clip space
 //	gl_Position = pos * uWorldTransform * uViewProj;
 

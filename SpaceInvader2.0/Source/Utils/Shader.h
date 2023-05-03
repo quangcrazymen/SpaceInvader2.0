@@ -10,7 +10,7 @@ public:
 	bool Load(const std::string& vertName, const std::string& fragName);
 	// Unload when not use while not unload everything in the constructor
 	//void Unload();
-	void SetMatrixUniform(const char* name, const glm::mat4& matrix);
+	void SetMatrix4(const char* name, const glm::mat4& matrix);
 
 	void Enable();
 	// void Disable();
@@ -24,6 +24,6 @@ public:
 
 	GLuint mVertexShader;
 	GLuint mFragShader;
-	GLuint mShaderProgram;
+	unsigned int mShaderProgram;
 };
 

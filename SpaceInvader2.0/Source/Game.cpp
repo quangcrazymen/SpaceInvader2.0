@@ -1,3 +1,5 @@
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "Game.h"
 #include "Utils/Shader.h"
 #include "Utils/VertexArray.h"
@@ -83,8 +85,27 @@ void Game::RunLoop()
 	shader.Load("Shaders/Shader.vert", "Shaders/Shader.frag");
 	// Load Texture
 	Texture texture;
+	// How to use glActive texture? //////////////////////////////////////
+	glActiveTexture(GL_TEXTURE0);
 	texture.Load("Assets/graphics/a1.png");
-	texture.Enable();
+	glBindTexture(GL_TEXTURE_2D, texture.mTextureID);
+	//texture.Enable();
+	glActiveTexture(GL_TEXTURE1);
+	texture.Load("Assets/graphics/Bullet1.png");
+	glBindTexture(GL_TEXTURE_2D, texture.mTextureID);
+	glActiveTexture(GL_TEXTURE1);
+	//texture.Enable();
+
+	// camera (projection)
+	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
+	shader.Enable();
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(200.0f, 200.0f,0.0f));
+	model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(100.0f, 100.0f,0.0f));
+
+	shader.SetMatrix4("model", model);
+	shader.SetMatrix4("projection", projection);
 	while (mIsRunning)
 	{
 		ProcessInput();
@@ -94,12 +115,25 @@ void Game::RunLoop()
 }
 
 void Game::ProcessInput() {
+	// Using event queue
 	SDL_Event event;
+	//SDL_Event user_event;
+	//user_event.user.type = SDL_USEREVENT;
+	//user_event.user.code = 2;
+	//user_event.user.data1 = NULL;
 	// check the documentation if it's already a event queue
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_QUIT:
 			mIsRunning = false;
+			break;
+		case SDL_KEYDOWN:
+			if (event.key.keysym.sym==100) {
+				std::cout << "Key is pressed" << event.key.keysym.sym << std::endl;
+			}
+			if (event.key.keysym.sym == 101) {
+				std::cout << "Key is pressed" << event.key.keysym.sym << std::endl;
+			}
 			break;
 		}
 	}
@@ -119,14 +153,30 @@ void Game::GenerateOutput(Shader& shader,VertexArray& vert) {
 	// Clear the color buffer
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// Update something
+	for (short i = 0; i < 2; ++i) {
+		glm::mat4 model = glm::mat4(1.0);
+
+	}
+
+
 	// Draw all sprite components
 	// Enable alpha blending on the color buffer
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	shader.Enable();
-	vert.Enable();
-
+	//shader.Enable();
+	//vert.Enable();
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(200.f, 300.f, 0.f));
+	model = glm::scale(model, glm::vec3(30.f, 40.f, 0.f));
+	shader.SetMatrix4("model", model);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(400.f, 300.f, 0.f));
+	model = glm::scale(model, glm::vec3(30.f, 40.f, 0.f));
+	shader.SetMatrix4("model", model);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 	SDL_GL_SwapWindow(mWindow);
 }

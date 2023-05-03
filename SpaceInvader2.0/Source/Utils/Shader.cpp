@@ -1,5 +1,6 @@
 #include "Shader.h"
 #include <SDL/SDL.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -19,12 +20,9 @@ Shader::~Shader() {
 	std::cout << "Destruct Shader\n";
 }
 
-void Shader::SetMatrixUniform(const char* name, const glm::mat4& matrix)
+void Shader::SetMatrix4(const char* name, const glm::mat4& matrix)
 {
-	//// Find the uniform by this name
-	//GLuint loc = glGetUniformLocation(mShaderProgram, name);
-	//// Send the matrix data to the uniform
-	//glUniformMatrix4fv(loc, 1, GL_TRUE, matrix);
+	glUniformMatrix4fv(glGetUniformLocation(this->mShaderProgram, name), 1, false, glm::value_ptr(matrix));
 }
 
 void Shader::Enable() {
