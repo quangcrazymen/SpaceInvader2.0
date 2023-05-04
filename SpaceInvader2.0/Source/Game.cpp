@@ -75,7 +75,7 @@ bool Game::Initialize()
 	};
 	mVertexArray = new VertexArray(vertices, 4, indices, 6);
 	mShader.Load("Shaders/Shader.vert", "Shaders/Shader.frag");
-	mTexture["Player"].Load("Assets/graphics/healthPotion.png");
+	mTexture["Player"].Load("Assets/graphics/player.png");
 	mTexture["Invader"].Load("Assets/graphics/a1.png");
 	return true;
 }

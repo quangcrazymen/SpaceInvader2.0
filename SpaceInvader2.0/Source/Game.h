@@ -10,6 +10,12 @@
 #include "Utils/VertexArray.h"
 #include "Utils/Texture.h"
 
+struct Bullet {
+	float mSpeed = 0;
+	glm::vec2 mPosition;
+	glm::vec2 mRotation;
+
+};
 class Game
 {
 public:
@@ -37,5 +43,6 @@ public:
 	Shader mShader;
 	VertexArray *mVertexArray;
 	std::unordered_map<std::string,Texture> mTexture;
+	std::vector<Bullet> mBullets;
 };
 
