@@ -4,30 +4,38 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include "Utils/Shader.h"
 #include "Utils/VertexArray.h"
+#include "Utils/Texture.h"
 
 class Game
 {
 public:
 	// https://stackoverflow.com/questions/29424877/couple-of-questions-about-sdl-window-and-unique-ptr
-	Game():mWindow(nullptr),mContext(NULL){
+	Game():mWindow(nullptr),mContext(nullptr),mVertexArray(nullptr){
 		std::cout << "Game constructed" << std::endl;
 	}
 	bool Initialize();
-	void ProcessInput();
+	void ProcessInput(Uint32 deltaMilliseconds);
 	void UpdateGame();
-	void GenerateOutput(Shader &shad,VertexArray &vert);
+	void GenerateOutput();
 	void RunLoop();
 	~Game() {
 		std::cout << "Game destructed" << std::endl;
 		SDL_DestroyWindow(mWindow);
+		delete mVertexArray;
 	}
 	Uint32 mTicksCount=0;
 	SDL_Window* mWindow;
 	SDL_GLContext mContext;
 
 	bool mIsRunning = true;
+	float mSpeed = 0;
 
+	Shader mShader;
+	VertexArray *mVertexArray;
+	std::unordered_map<std::string,Texture> mTexture;
 };
 

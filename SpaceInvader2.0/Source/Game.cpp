@@ -62,103 +62,94 @@ bool Game::Initialize()
 
 	mTicksCount = SDL_GetTicks();
 
-	return true;
-}
-
-void Game::RunLoop()
-{
 	float vertices[] = {
-		-0.5f,  0.5f, 0.f, 0.f, 0.f, // top left
-		 0.5f,  0.5f, 0.f, 1.f, 0.f, // top right
-		 0.5f, -0.5f, 0.f, 1.f, 1.f, // bottom right
-		-0.5f, -0.5f, 0.f, 0.f, 1.f  // bottom left
+	-0.5f,  0.5f, 0.f, 0.f, 0.f, // top left
+	 0.5f,  0.5f, 0.f, 1.f, 0.f, // top right
+	 0.5f, -0.5f, 0.f, 1.f, 1.f, // bottom right
+	-0.5f, -0.5f, 0.f, 0.f, 1.f  // bottom left
 	};
 
 	unsigned int indices[] = {
 		0, 1, 2,
 		2, 3, 0
 	};
+	mVertexArray = new VertexArray(vertices, 4, indices, 6);
+	mShader.Load("Shaders/Shader.vert", "Shaders/Shader.frag");
+	mTexture["Player"].Load("Assets/graphics/healthPotion.png");
+	mTexture["Invader"].Load("Assets/graphics/a1.png");
+	return true;
+}
 
-	VertexArray mSpriteVerts = VertexArray(vertices, 4, indices, 6);
-	mSpriteVerts.Enable();
-	Shader shader;
-	shader.Load("Shaders/Shader.vert", "Shaders/Shader.frag");
+void Game::RunLoop()
+{
+	mVertexArray->Enable();
 	// Load Texture
 	Texture texture;
 	// How to use glActive texture? //////////////////////////////////////
-	glActiveTexture(GL_TEXTURE0);
-	texture.Load("Assets/graphics/a1.png");
-	glBindTexture(GL_TEXTURE_2D, texture.mTextureID);
-	//texture.Enable();
-	glActiveTexture(GL_TEXTURE1);
-	texture.Load("Assets/graphics/Bullet1.png");
-	glBindTexture(GL_TEXTURE_2D, texture.mTextureID);
-	glActiveTexture(GL_TEXTURE1);
-	//texture.Enable();
-
+	//glActiveTexture(GL_TEXTURE0);
+	//texture.Load("Assets/graphics/player.png");
+	//glBindTexture(GL_TEXTURE_2D, texture.mTextureID);
+	//Texture texture2;
+	//texture2.Load("Assets/graphics/a1.png");
+	//glBindTexture(GL_TEXTURE_2D, texture2.mTextureID);
+	
 	// camera (projection)
 	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
-	shader.Enable();
+	mShader.Enable();
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(200.0f, 200.0f,0.0f));
 	model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::scale(model, glm::vec3(100.0f, 100.0f,0.0f));
 
-	shader.SetMatrix4("model", model);
-	shader.SetMatrix4("projection", projection);
+	mShader.SetMatrix4("model", model);
+	mShader.SetMatrix4("projection", projection);
 	while (mIsRunning)
 	{
-		ProcessInput();
+		Uint32 deltaTime = SDL_GetTicks() - mTicksCount;
+		//std::cout << 1000/ deltaTime << '\n';
+		mTicksCount = SDL_GetTicks();
+		ProcessInput(deltaTime);
 		UpdateGame();
-		GenerateOutput(shader,mSpriteVerts);
+		GenerateOutput();
 	}
 }
 
-void Game::ProcessInput() {
+void Game::ProcessInput(Uint32 deltaMilliseconds) {
 	// Using event queue
 	SDL_Event event;
-	//SDL_Event user_event;
-	//user_event.user.type = SDL_USEREVENT;
-	//user_event.user.code = 2;
-	//user_event.user.data1 = NULL;
 	// check the documentation if it's already a event queue
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_QUIT:
 			mIsRunning = false;
 			break;
-		case SDL_KEYDOWN:
-			if (event.key.keysym.sym==100) {
-				std::cout << "Key is pressed" << event.key.keysym.sym << std::endl;
-			}
-			if (event.key.keysym.sym == 101) {
-				std::cout << "Key is pressed" << event.key.keysym.sym << std::endl;
-			}
-			break;
 		}
+	}
+	const Uint8* keyState = SDL_GetKeyboardState(nullptr);
+	if (keyState[SDL_SCANCODE_ESCAPE]) {
+		mIsRunning = false;
+	}
+
+	if (keyState[SDL_SCANCODE_D]) {
+		mSpeed += 100 * deltaMilliseconds / (float)1000.0;
+	}
+
+	if (keyState[SDL_SCANCODE_A]) {
+		mSpeed -= 100 * deltaMilliseconds / (float)1000.0;
 	}
 }
 void Game::UpdateGame() {
 	// lock fps :)
-	while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
-		;
-	Uint32 deltaTime = SDL_GetTicks() - mTicksCount;
-	//std::cout << 1000/ deltaTime << '\n';
-	mTicksCount = SDL_GetTicks();
+	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
+	//	;
+
 }
 
-void Game::GenerateOutput(Shader& shader,VertexArray& vert) {
+void Game::GenerateOutput() {
 	// Set the clear color to grey
 	glClearColor(0.86f, 0.86f, 0.86f, 1.0f);
 	// Clear the color buffer
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	// Update something
-	for (short i = 0; i < 2; ++i) {
-		glm::mat4 model = glm::mat4(1.0);
-
-	}
-
 
 	// Draw all sprite components
 	// Enable alpha blending on the color buffer
@@ -167,15 +158,20 @@ void Game::GenerateOutput(Shader& shader,VertexArray& vert) {
 
 	//shader.Enable();
 	//vert.Enable();
+	// This is a ship
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(200.f, 300.f, 0.f));
-	model = glm::scale(model, glm::vec3(30.f, 40.f, 0.f));
-	shader.SetMatrix4("model", model);
+	model = glm::translate(model, glm::vec3(200.f + mSpeed , 300.f, 0.f));
+	model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
+	mShader.SetMatrix4("model", model);
+	mTexture["Player"].Enable();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	// This is a enemy
+	
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(400.f, 300.f, 0.f));
 	model = glm::scale(model, glm::vec3(30.f, 40.f, 0.f));
-	shader.SetMatrix4("model", model);
+	mShader.SetMatrix4("model", model);
+	mTexture["Invader"].Enable();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	SDL_GL_SwapWindow(mWindow);
