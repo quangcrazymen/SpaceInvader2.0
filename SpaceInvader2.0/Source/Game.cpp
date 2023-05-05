@@ -108,7 +108,7 @@ void Game::RunLoop()
 	model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::scale(model, glm::vec3(100.0f, 100.0f,0.0f));
 
-	// This is a ship
+	// This is projection
 	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
 	mShader.SetMatrix4("projection", projection);
 	// view matrix (camera)
@@ -199,7 +199,7 @@ void Game::GenerateOutput() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-
+	// This is the ship
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.f + mHorizontal , 0.f+mVertical, 0.f));
 	//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
