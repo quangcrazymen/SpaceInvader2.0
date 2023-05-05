@@ -86,6 +86,8 @@ bool Game::Initialize()
 	//	i = Bullet();
 	//}
 	mTimeBetweenShots = 500;
+
+	// Player
 	return true;
 }
 
@@ -168,23 +170,19 @@ void Game::ProcessInput(Uint32 deltaMilliseconds) {
 		mIsRunning = false;
 	}
 	if (keyState[SDL_SCANCODE_W]) {
-		mVertical += mSpeed * deltaMilliseconds / (float)1000.0;
-		std::cout << mVertical << std::endl;
+		mPlayer.mPosition.y += mSpeed * deltaMilliseconds / (float)1000.0;
 	}
 
 	if (keyState[SDL_SCANCODE_S]) {
-		mVertical -= mSpeed * deltaMilliseconds / (float)1000.0;
-		std::cout << mVertical << std::endl;
+		mPlayer.mPosition.y -= mSpeed * deltaMilliseconds / (float)1000.0;
 	}
 
 	if (keyState[SDL_SCANCODE_D]) {
-		mHorizontal += mSpeed * deltaMilliseconds / (float)1000.0;
-		std::cout << mHorizontal << std::endl;
+		mPlayer.mPosition.x += mSpeed * deltaMilliseconds / (float)1000.0;
 	}
 
 	if (keyState[SDL_SCANCODE_A]) {
-		mHorizontal -= mSpeed * deltaMilliseconds / (float)1000.0;
-		std::cout << mHorizontal << std::endl;
+		mPlayer.mPosition.x -= mSpeed * deltaMilliseconds / (float)1000.0;
 	}
 	mTimeSinceLastShot += deltaMilliseconds;
 
@@ -192,6 +190,7 @@ void Game::ProcessInput(Uint32 deltaMilliseconds) {
 		//mBullets[0].mPosition.y += mSpeed * deltaMilliseconds / (float)1000.0;
 		if (mBulletIndex == mBullets.size()) mBulletIndex = 0;
 		if (mTimeSinceLastShot >= mTimeBetweenShots) {
+			mBullets[mBulletIndex].mPosition = mPlayer.mPosition;
 			mBullets[mBulletIndex].mActive = true;
 			mBulletIndex++;
 			mTimeSinceLastShot = 0;
@@ -202,10 +201,6 @@ void Game::UpdateGame(Uint32 deltaTime) {
 	// lock fps :)
 	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
 	//	;
-	// Update bullet in here
-	//for (auto& i : mBullets) {
-	//	if()
-	//}	
 	if (mTimeSinceLastShot < mTimeBetweenShots) {
 
 	}
@@ -214,7 +209,8 @@ void Game::UpdateGame(Uint32 deltaTime) {
 			bullet.mPosition.y += mSpeed * deltaTime/(float)1000.0;
 		}
 		if (bullet.mPosition.y > 300) {
-			bullet.mPosition.y = 0;
+			bullet.mPosition.y = -1000;
+			bullet.mPosition.x = -1000;
 			bullet.mActive = false;
 		}
 	}
@@ -236,7 +232,7 @@ void Game::GenerateOutput() {
 
 	// This is the ship
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.f + mHorizontal , 0.f+mVertical, 0.f));
+	model = glm::translate(model, glm::vec3( mPlayer.mPosition.x ,mPlayer.mPosition.y, 0.f));
 	//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
 	mShader.SetMatrix4("model", model);

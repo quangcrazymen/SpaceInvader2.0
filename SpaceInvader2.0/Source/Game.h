@@ -12,8 +12,9 @@
 
 struct Bullet {
 	Bullet() : 
-		mPosition(glm::vec2(100.0f,100.0f))
-		,mRotation(0.0f)
+		mPosition(glm::vec2(-1000.0f,-1000.0f))
+		,mRotation(0.0f),
+		mActive(false)
 	{}
 	float mSpeed = 0;
 	glm::vec2 mPosition;
@@ -24,6 +25,13 @@ struct Invader {
 	float mSpeed = 0;
 	glm::vec2 mPosition;
 	glm::vec2 mRotation;
+};
+struct Player {
+	Player() :mPosition(glm::vec2(0.0f, 0.0f)){}
+	Player(glm::vec2 pos):mPosition(pos){}
+	float mSpeed = 0;
+	glm::vec2 mPosition;
+	bool isAlive = true;
 };
 class Game
 {
@@ -59,7 +67,10 @@ public:
 
 	// Bullet
 	short mBulletIndex = 0;
-	Uint32 mTimeSinceLastShot;
+	Uint32 mTimeSinceLastShot = 0;
 	Uint32 mTimeBetweenShots = 3000;
+	
+	// Player
+	Player mPlayer;
 };
 

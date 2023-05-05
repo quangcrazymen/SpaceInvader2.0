@@ -157,7 +157,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Source\Utils\Shader.cpp" />
     <ClCompile Include="Source\Game.cpp" />
     <ClCompile Include="Source\SpaceInvader2.0.cpp" />
@@ -165,7 +164,6 @@
     <ClCompile Include="Source\Utils\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Actor.h" />
     <ClInclude Include="Source\Utils\Shader.h" />
     <ClInclude Include="Source\Game.h" />
     <ClInclude Include="Include\glew\glew.h" />
