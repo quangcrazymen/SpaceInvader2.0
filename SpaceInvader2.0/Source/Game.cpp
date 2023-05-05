@@ -77,7 +77,14 @@ bool Game::Initialize()
 	mShader.Load("Shaders/Shader.vert", "Shaders/Shader.frag");
 	mTexture["Player"].Load("Assets/graphics/player.png");
 	mTexture["Invader"].Load("Assets/graphics/a1.png");
+	mTexture["Bullet"].Load("Assets/graphics/bulletRemake.png");
 	mSpeed = 400.0f;
+
+	mBullets.reserve(1000);
+	mBullets = std::vector<Bullet>(10, Bullet());
+	//for (auto& i : mBullets) {
+	//	i = Bullet();
+	//}
 	return true;
 }
 
@@ -139,7 +146,7 @@ void Game::RunLoop()
 		//std::cout << 1000/ deltaTime << '\n';
 		mTicksCount = SDL_GetTicks();
 		ProcessInput(deltaTime);
-		UpdateGame();
+		UpdateGame(deltaTime);
 		GenerateOutput();
 	}
 }
@@ -177,13 +184,28 @@ void Game::ProcessInput(Uint32 deltaMilliseconds) {
 	if (keyState[SDL_SCANCODE_A]) {
 		mHorizontal -= mSpeed * deltaMilliseconds / (float)1000.0;
 		std::cout << mHorizontal << std::endl;
+	}
 
+	if (keyState[SDL_SCANCODE_SPACE]) {
+		//mBullets[0].mPosition.y += mSpeed * deltaMilliseconds / (float)1000.0;
+		mBullets[0].mActive = true;
 	}
 }
-void Game::UpdateGame() {
+void Game::UpdateGame(Uint32 deltaTime) {
 	// lock fps :)
 	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
 	//	;
+	// Update bullet in here
+	//for (auto& i : mBullets) {
+	//	if()
+	//}
+
+	if (mBullets[0].mPosition.y > 300) {
+		mBullets[0].mPosition.y = 0;
+		mBullets[0].mActive = false;
+	}
+	if(mBullets[0].mActive)
+		mBullets[0].mPosition.y += mSpeed * deltaTime/(float)1000.0;
 
 }
 
@@ -198,7 +220,6 @@ void Game::GenerateOutput() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
 	// This is the ship
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.f + mHorizontal , 0.f+mVertical, 0.f));
@@ -212,11 +233,20 @@ void Game::GenerateOutput() {
 	// This is a enemy
 	
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(400.f, 300.f, 0.f));
+	model = glm::translate(model, glm::vec3(0.f, 200.f, 0.f));
 	model = glm::scale(model, glm::vec3(30.f, 40.f, 0.f));
 	mShader.SetMatrix4("model", model);
 	mTexture["Invader"].Enable();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+	// This is bullets
+	for (auto& bullet :mBullets) {
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(bullet.mPosition, 0.0f));
+		model = glm::scale(model, glm::vec3(15.f, 40.0f, 0.0f));
+		mShader.SetMatrix4("model", model);
+		mTexture["Bullet"].Enable();
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
 	SDL_GL_SwapWindow(mWindow);
 }

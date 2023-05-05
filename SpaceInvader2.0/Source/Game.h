@@ -11,10 +11,14 @@
 #include "Utils/Texture.h"
 
 struct Bullet {
+	Bullet() : 
+		mPosition(glm::vec2(100.0f,100.0f))
+		,mRotation(0.0f)
+	{}
 	float mSpeed = 0;
 	glm::vec2 mPosition;
-	glm::vec2 mRotation;
-
+	float mRotation;
+	bool mActive;
 };
 struct Invader {
 	float mSpeed = 0;
@@ -30,7 +34,7 @@ public:
 	}
 	bool Initialize();
 	void ProcessInput(Uint32 deltaMilliseconds);
-	void UpdateGame();
+	void UpdateGame(Uint32 deltatime);
 	void GenerateOutput();
 	void RunLoop();
 	~Game() {
