@@ -56,5 +56,10 @@ public:
 	std::unordered_map<std::string,Texture> mTexture;
 	std::vector<Bullet> mBullets;
 	std::vector<Invader> mInvaders;
+
+	// Bullet
+	short mBulletIndex = 0;
+	Uint32 mTimeSinceLastShot;
+	Uint32 mTimeBetweenShots = 3000;
 };
 

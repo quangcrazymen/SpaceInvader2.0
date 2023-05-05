@@ -85,6 +85,7 @@ bool Game::Initialize()
 	//for (auto& i : mBullets) {
 	//	i = Bullet();
 	//}
+	mTimeBetweenShots = 500;
 	return true;
 }
 
@@ -185,10 +186,16 @@ void Game::ProcessInput(Uint32 deltaMilliseconds) {
 		mHorizontal -= mSpeed * deltaMilliseconds / (float)1000.0;
 		std::cout << mHorizontal << std::endl;
 	}
+	mTimeSinceLastShot += deltaMilliseconds;
 
 	if (keyState[SDL_SCANCODE_SPACE]) {
 		//mBullets[0].mPosition.y += mSpeed * deltaMilliseconds / (float)1000.0;
-		mBullets[0].mActive = true;
+		if (mBulletIndex == mBullets.size()) mBulletIndex = 0;
+		if (mTimeSinceLastShot >= mTimeBetweenShots) {
+			mBullets[mBulletIndex].mActive = true;
+			mBulletIndex++;
+			mTimeSinceLastShot = 0;
+		}
 	}
 }
 void Game::UpdateGame(Uint32 deltaTime) {
@@ -198,14 +205,21 @@ void Game::UpdateGame(Uint32 deltaTime) {
 	// Update bullet in here
 	//for (auto& i : mBullets) {
 	//	if()
-	//}
+	//}	
+	if (mTimeSinceLastShot < mTimeBetweenShots) {
 
-	if (mBullets[0].mPosition.y > 300) {
-		mBullets[0].mPosition.y = 0;
-		mBullets[0].mActive = false;
 	}
-	if(mBullets[0].mActive)
-		mBullets[0].mPosition.y += mSpeed * deltaTime/(float)1000.0;
+	for (auto& bullet : mBullets) {
+		if (bullet.mActive){
+			bullet.mPosition.y += mSpeed * deltaTime/(float)1000.0;
+		}
+		if (bullet.mPosition.y > 300) {
+			bullet.mPosition.y = 0;
+			bullet.mActive = false;
+		}
+	}
+	mTimeSinceLastShot += deltaTime;
+
 
 }
 
