@@ -16,6 +16,11 @@ struct Bullet {
 	glm::vec2 mRotation;
 
 };
+struct Invader {
+	float mSpeed = 0;
+	glm::vec2 mPosition;
+	glm::vec2 mRotation;
+};
 class Game
 {
 public:
@@ -39,10 +44,13 @@ public:
 
 	bool mIsRunning = true;
 	float mSpeed = 0;
+	float mHorizontal = 0;
+	float mVertical = 0;
 
 	Shader mShader;
 	VertexArray *mVertexArray;
 	std::unordered_map<std::string,Texture> mTexture;
 	std::vector<Bullet> mBullets;
+	std::vector<Invader> mInvaders;
 };
 

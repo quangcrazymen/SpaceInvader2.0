@@ -77,6 +77,7 @@ bool Game::Initialize()
 	mShader.Load("Shaders/Shader.vert", "Shaders/Shader.frag");
 	mTexture["Player"].Load("Assets/graphics/player.png");
 	mTexture["Invader"].Load("Assets/graphics/a1.png");
+	mSpeed = 400.0f;
 	return true;
 }
 
@@ -93,14 +94,43 @@ void Game::RunLoop()
 	//texture2.Load("Assets/graphics/a1.png");
 	//glBindTexture(GL_TEXTURE_2D, texture2.mTextureID);
 	
-	// camera (projection)
-	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
+	// projection
+	//glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
+	//for (int i = 0; i < 4; ++i) {
+	//	for (int j = 0; j < 4; ++j) {
+	//		std::cout << projection[i][j] << ' ';
+	//	}
+	//	std::cout << '\n';
+	//}
 	mShader.Enable();
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(200.0f, 200.0f,0.0f));
 	model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::scale(model, glm::vec3(100.0f, 100.0f,0.0f));
 
+	// This is a ship
+	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
+	mShader.SetMatrix4("projection", projection);
+	// view matrix (camera)
+	// try to use lookAt
+	glm::vec3 cameraPos = glm::vec3(0.f, 0.f, -0.5f);
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+	// right axis
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+	//up axis
+	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+	// view matrix (camera)
+	glm::mat4 view;
+	//view = glm::mat4(1.0f);
+	//view = glm::translate(view, glm::vec3(800.f/2, 400.0f/2, -0.10f));
+	//view = glm::translate(view, glm::vec3(-800.f/2, -400.0f/2, -0.10f));
+	// change coordinate system with the player ship being the origin/////////////////////////
+	view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+	view = glm::translate(view, glm::vec3(-400.f, 300.0f, 0.0f));
+	view = glm::rotate(view, glm::radians(-180.0f), glm::vec3(0.f, 0.f, 1.f));
+	mShader.SetMatrix4("view", view);
 	mShader.SetMatrix4("model", model);
 	mShader.SetMatrix4("projection", projection);
 	while (mIsRunning)
@@ -129,13 +159,25 @@ void Game::ProcessInput(Uint32 deltaMilliseconds) {
 	if (keyState[SDL_SCANCODE_ESCAPE]) {
 		mIsRunning = false;
 	}
+	if (keyState[SDL_SCANCODE_W]) {
+		mVertical += mSpeed * deltaMilliseconds / (float)1000.0;
+		std::cout << mVertical << std::endl;
+	}
+
+	if (keyState[SDL_SCANCODE_S]) {
+		mVertical -= mSpeed * deltaMilliseconds / (float)1000.0;
+		std::cout << mVertical << std::endl;
+	}
 
 	if (keyState[SDL_SCANCODE_D]) {
-		mSpeed += 100 * deltaMilliseconds / (float)1000.0;
+		mHorizontal += mSpeed * deltaMilliseconds / (float)1000.0;
+		std::cout << mHorizontal << std::endl;
 	}
 
 	if (keyState[SDL_SCANCODE_A]) {
-		mSpeed -= 100 * deltaMilliseconds / (float)1000.0;
+		mHorizontal -= mSpeed * deltaMilliseconds / (float)1000.0;
+		std::cout << mHorizontal << std::endl;
+
 	}
 }
 void Game::UpdateGame() {
@@ -156,15 +198,17 @@ void Game::GenerateOutput() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//shader.Enable();
-	//vert.Enable();
-	// This is a ship
+
+
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(200.f + mSpeed , 300.f, 0.f));
+	model = glm::translate(model, glm::vec3(0.f + mHorizontal , 0.f+mVertical, 0.f));
+	//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
 	mShader.SetMatrix4("model", model);
 	mTexture["Player"].Enable();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
 	// This is a enemy
 	
 	model = glm::mat4(1.0f);

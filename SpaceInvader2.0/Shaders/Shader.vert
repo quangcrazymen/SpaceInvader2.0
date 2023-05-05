@@ -6,6 +6,7 @@
 //uniform mat4 uViewProj;
 uniform mat4 projection;
 uniform mat4 model;
+uniform mat4 view;
 
 // Attribute 0 is position, 1 is tex coords.
 layout(location = 0) in vec3 inPosition;
@@ -18,7 +19,7 @@ void main()
 {
 	// Convert position to homogeneous 
 	vec4 pos = vec4(inPosition, 1.0);
-	gl_Position = projection * model * pos;
+	gl_Position = projection * view * model * pos;
 	// Transform position to world space, then clip space
 //	gl_Position = pos * uWorldTransform * uViewProj;
 
