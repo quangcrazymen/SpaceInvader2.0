@@ -9,14 +9,21 @@
 
 int main(int agrc, char* argv[])
 {
-    auto testMat = glm::mat3(1, 2, 3, 4, 5, 6, 7, 8, 9);
-    std::cout << testMat[0][2] << std::endl;
-
     Game game;
     if (game.Initialize()) {
         game.RunLoop();
     }
 
+    // 
+    Hitbox a;
+    Hitbox b;
+    a.mPosition=glm::vec2(5.f, 7.f);
+    a.mSize = glm::vec2(4, 4);
+    b.mPosition = glm::vec2(8.f, 4.f);
+    b.mSize = glm::vec2(4.f, 4.f);
+    if (a.isColliding(b)) {
+        std::cout << "True" << std::endl;
+    }
     return 0;
 }
 

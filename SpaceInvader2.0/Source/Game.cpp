@@ -82,10 +82,12 @@ bool Game::Initialize()
 
 	mBullets.reserve(1000);
 	mBullets = std::vector<Bullet>(10, Bullet());
-	//for (auto& i : mBullets) {
-	//	i = Bullet();
-	//}
+
 	mTimeBetweenShots = 500;
+
+	mInvader.mPosition = glm::vec2(0.f, 200.f);
+	mInvader.mHitbox.mPosition = mInvader.mPosition;
+	mInvader.mHitbox.mSize = mInvader.mSize;
 
 	// Player
 	return true;
@@ -143,6 +145,8 @@ void Game::RunLoop()
 	mShader.SetMatrix4("view", view);
 	mShader.SetMatrix4("model", model);
 	mShader.SetMatrix4("projection", projection);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (mIsRunning)
 	{
 		Uint32 deltaTime = SDL_GetTicks() - mTicksCount;
@@ -201,9 +205,17 @@ void Game::UpdateGame(Uint32 deltaTime) {
 	// lock fps :)
 	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
 	//	;
-	if (mTimeSinceLastShot < mTimeBetweenShots) {
+	// Auto shoot for debug
+	//if (mTimeSinceLastShot >= mTimeBetweenShots) {
+	//	if (mBulletIndex == mBullets.size()) mBulletIndex = 0;
+	//	mBullets[mBulletIndex].mPosition = mPlayer.mPosition;
+	//	mBullets[mBulletIndex].mActive = true;
+	//	mBulletIndex++;
+	//	mTimeSinceLastShot = 0;
+	//}
+	// @todo FPS counter
 
-	}
+
 	for (auto& bullet : mBullets) {
 		if (bullet.mActive){
 			bullet.mPosition.y += mSpeed * deltaTime/(float)1000.0;
@@ -215,8 +227,23 @@ void Game::UpdateGame(Uint32 deltaTime) {
 		}
 	}
 	mTimeSinceLastShot += deltaTime;
-
-
+	// @ Todo: Room for optimizing here
+	for (auto& bullet : mBullets) {
+		if (bullet.mActive) {
+			bullet.mHitbox.mPosition = bullet.mPosition;
+			bullet.mHitbox.mSize = bullet.mSize;
+		}
+	}
+	// @TODO: Add collision detection (spatial data structure?)
+	// Draw lines: https://stackoverflow.com/questions/14486291/how-to-draw-line-in-opengl
+	for (auto& bullet: mBullets) {
+		if (bullet.mHitbox.isColliding(mInvader.mHitbox)) {
+			std::cout << "Hit\n";
+			bullet.mPosition = glm::vec2(-1000, -1000);
+			bullet.mHitbox.mPosition = bullet.mPosition;
+			bullet.mActive = false;
+		}
+	}
 }
 
 void Game::GenerateOutput() {
@@ -243,20 +270,25 @@ void Game::GenerateOutput() {
 	// This is a enemy
 	
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.f, 200.f, 0.f));
-	model = glm::scale(model, glm::vec3(30.f, 40.f, 0.f));
+	model = glm::translate(model, glm::vec3(mInvader.mPosition, 0.f));
+	model = glm::scale(model, glm::vec3(mInvader.mSize, 0.f));
 	mShader.SetMatrix4("model", model);
 	mTexture["Invader"].Enable();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	// This is bullets
 	for (auto& bullet :mBullets) {
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(bullet.mPosition, 0.0f));
-		model = glm::scale(model, glm::vec3(15.f, 40.0f, 0.0f));
-		mShader.SetMatrix4("model", model);
-		mTexture["Bullet"].Enable();
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		if (bullet.mActive) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(bullet.mPosition, 0.0f));
+			model = glm::scale(model, glm::vec3(bullet.mSize, 0.0f));
+			mShader.SetMatrix4("model", model);
+			mTexture["Bullet"].Enable();
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
 	}
+
+	// @TODO: Draw a bounding box using different shader;
+
 	SDL_GL_SwapWindow(mWindow);
 }
