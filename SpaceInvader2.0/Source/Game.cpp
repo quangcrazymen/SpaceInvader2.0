@@ -90,6 +90,13 @@ bool Game::Initialize()
 	mInvader.mHitbox.mSize = mInvader.mSize;
 
 	// Player
+	// Populate the scene with invaders
+	mInvaders.reserve(100);
+	for (int i = 0; i < 10; ++i) {
+		mInvaders.emplace_back(Invader(glm::vec2(i * 10.0f, 200.f)));
+		mInvaders[i].mHitbox.mPosition = mInvaders[i].mPosition;
+		mInvaders[i].mHitbox.mSize = mInvaders[i].mSize;
+	}
 	return true;
 }
 
@@ -237,11 +244,14 @@ void Game::UpdateGame(Uint32 deltaTime) {
 	// @TODO: Add collision detection (spatial data structure?)
 	// Draw lines: https://stackoverflow.com/questions/14486291/how-to-draw-line-in-opengl
 	for (auto& bullet: mBullets) {
-		if (bullet.mHitbox.isColliding(mInvader.mHitbox)) {
-			std::cout << "Hit\n";
-			bullet.mPosition = glm::vec2(-1000, -1000);
-			bullet.mHitbox.mPosition = bullet.mPosition;
-			bullet.mActive = false;
+		for (auto& invader : mInvaders) {
+			// @todo condition enemy is alive
+			if (bullet.mHitbox.isColliding(invader.mHitbox)) {
+				std::cout << "Hit\n";
+				bullet.mPosition = glm::vec2(-1000, -1000);
+				bullet.mHitbox.mPosition = bullet.mPosition;
+				bullet.mActive = false;
+			}
 		}
 	}
 }
@@ -267,14 +277,15 @@ void Game::GenerateOutput() {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
-	// This is a enemy
-	
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(mInvader.mPosition, 0.f));
-	model = glm::scale(model, glm::vec3(mInvader.mSize, 0.f));
-	mShader.SetMatrix4("model", model);
-	mTexture["Invader"].Enable();
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	// This is invaders
+	for (auto& invader : mInvaders) {
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(invader.mPosition, 0.f));
+		model = glm::scale(model, glm::vec3(invader.mSize, 0.f));
+		mShader.SetMatrix4("model", model);
+		mTexture["Invader"].Enable();
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
 
 	// This is bullets
 	for (auto& bullet :mBullets) {

@@ -43,6 +43,10 @@ struct Invader {
 		, mPosition(glm::vec2(200.f, 200.f))
 		, mRotation(0.0f)
 	{}
+	Invader(glm::vec2 pos) {
+		mPosition = pos;
+		mSize = glm::vec2(30.f, 40.f);
+	}
 	float mSpeed = 0;
 	glm::vec2 mPosition;
 	float mRotation;
@@ -89,7 +93,6 @@ public:
 	VertexArray *mVertexArray;
 	std::unordered_map<std::string,Texture> mTexture;
 	std::vector<Bullet> mBullets;
-	std::vector<Invader> mInvaders;
 
 	// Bullet
 	short mBulletIndex = 0;
@@ -101,5 +104,6 @@ public:
 
 	// Invaders
 	Invader mInvader;
+	std::vector<Invader> mInvaders;
 };
 
