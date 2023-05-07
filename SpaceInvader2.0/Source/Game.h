@@ -61,6 +61,8 @@ struct Player {
 	float mSpeed = 0;
 	glm::vec2 mPosition;
 	bool isAlive = true;
+	glm::vec2 mSize = glm::vec2(100.f,100.f);
+	Hitbox mHitbox;
 };
 
 class Game

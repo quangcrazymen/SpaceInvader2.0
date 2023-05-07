@@ -90,10 +90,13 @@ bool Game::Initialize()
 	mInvader.mHitbox.mSize = mInvader.mSize;
 
 	// Player
+	mPlayer.mHitbox.mPosition = mPlayer.mPosition;
+	mPlayer.mHitbox.mSize = mPlayer.mSize;
+
 	// Populate the scene with invaders
 	mInvaders.reserve(100);
 	for (int i = 0; i < 10; ++i) {
-		mInvaders.emplace_back(Invader(glm::vec2(i * 10.0f, 200.f)));
+		mInvaders.emplace_back(Invader(glm::vec2(i * 50.0f, 200.f)));
 		mInvaders[i].mHitbox.mPosition = mInvaders[i].mPosition;
 		mInvaders[i].mHitbox.mSize = mInvaders[i].mSize;
 	}
@@ -104,7 +107,7 @@ void Game::RunLoop()
 {
 	mVertexArray->Enable();
 	// Load Texture
-	Texture texture;
+	//Texture texture;
 	// How to use glActive texture? //////////////////////////////////////
 	//glActiveTexture(GL_TEXTURE0);
 	//texture.Load("Assets/graphics/player.png");
@@ -142,9 +145,6 @@ void Game::RunLoop()
 	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
 	// view matrix (camera)
 	glm::mat4 view;
-	//view = glm::mat4(1.0f);
-	//view = glm::translate(view, glm::vec3(800.f/2, 400.0f/2, -0.10f));
-	//view = glm::translate(view, glm::vec3(-800.f/2, -400.0f/2, -0.10f));
 	// change coordinate system with the player ship being the origin/////////////////////////
 	view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
 	view = glm::translate(view, glm::vec3(-400.f, 300.0f, 0.0f));
@@ -245,15 +245,35 @@ void Game::UpdateGame(Uint32 deltaTime) {
 	// Draw lines: https://stackoverflow.com/questions/14486291/how-to-draw-line-in-opengl
 	for (auto& bullet: mBullets) {
 		for (auto& invader : mInvaders) {
-			// @todo condition enemy is alive
-			if (bullet.mHitbox.isColliding(invader.mHitbox)) {
-				std::cout << "Hit\n";
-				bullet.mPosition = glm::vec2(-1000, -1000);
-				bullet.mHitbox.mPosition = bullet.mPosition;
-				bullet.mActive = false;
+			if (invader.isAlive) {
+				if (bullet.mHitbox.isColliding(invader.mHitbox)) {
+					std::cout << "Hit\n";
+					bullet.mPosition = glm::vec2(-1000, -1000);
+					bullet.mHitbox.mPosition = bullet.mPosition;
+					bullet.mActive = false;
+
+					invader.mPosition = glm::vec2(-2000, -2000);
+					invader.mHitbox.mPosition = invader.mPosition;
+					invader.isAlive = false;
+				}
 			}
 		}
 	}
+	//Update player hitbox position
+	mPlayer.mHitbox.mPosition = mPlayer.mPosition;
+	// @Todo: Add collision between enemies and player
+	for (auto& invader : mInvaders) {
+		if(invader.isAlive){
+			if (invader.mHitbox.isColliding(mPlayer.mHitbox)) {
+				std::cout << "Player got hit\n";
+
+				invader.mPosition = glm::vec2(-2000, -2000);
+				invader.mHitbox.mPosition = invader.mPosition;
+				invader.isAlive = false;
+			}
+		}
+	}
+	// @Todo: Add collision between enemies bullet and player
 }
 
 void Game::GenerateOutput() {
@@ -269,22 +289,24 @@ void Game::GenerateOutput() {
 
 	// This is the ship
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3( mPlayer.mPosition.x ,mPlayer.mPosition.y, 0.f));
+	model = glm::translate(model, glm::vec3( mPlayer.mPosition, 0.f));
 	//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
 	mShader.SetMatrix4("model", model);
 	mTexture["Player"].Enable();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
+	// @Todo: make the ship fade out when get hit (Add different shader program for the ship)
 
 	// This is invaders
 	for (auto& invader : mInvaders) {
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(invader.mPosition, 0.f));
-		model = glm::scale(model, glm::vec3(invader.mSize, 0.f));
-		mShader.SetMatrix4("model", model);
-		mTexture["Invader"].Enable();
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		if (invader.isAlive) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(invader.mPosition, 0.f));
+			model = glm::scale(model, glm::vec3(invader.mSize, 0.f));
+			mShader.SetMatrix4("model", model);
+			mTexture["Invader"].Enable();
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
 	}
 
 	// This is bullets

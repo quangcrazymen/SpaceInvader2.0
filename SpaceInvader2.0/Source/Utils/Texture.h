@@ -10,6 +10,7 @@ public:
 	//void Unload();
 
 	void Enable();
+	void Disable();
 
 	//int GetWidth() const { return mWidth; }
 	//int GetHeight() const { return mHeight; }

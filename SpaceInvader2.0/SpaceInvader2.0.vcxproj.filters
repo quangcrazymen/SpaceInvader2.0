@@ -56,6 +56,7 @@
     <None Include="Lib\SDL2.dll" />
     <None Include="Shaders\Shader.vert" />
     <None Include="Shaders\Shader.frag" />
+    <None Include="Shaders\ShipShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\graphics\a1.png">

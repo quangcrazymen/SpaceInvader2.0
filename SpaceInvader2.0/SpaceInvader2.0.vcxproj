@@ -188,6 +188,7 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
+    <None Include="Shaders\ShipShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\graphics\a1.png">

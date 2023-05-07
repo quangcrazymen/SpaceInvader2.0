@@ -52,3 +52,7 @@ void Texture::Enable()
 {
 	glBindTexture(GL_TEXTURE_2D, mTextureID);
 }
+
+void Texture::Disable() {
+	glBindTexture(GL_TEXTURE_2D,0);
+}
