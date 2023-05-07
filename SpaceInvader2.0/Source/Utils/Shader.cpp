@@ -20,9 +20,12 @@ Shader::~Shader() {
 	std::cout << "Destruct Shader\n";
 }
 
-void Shader::SetMatrix4(const char* name, const glm::mat4& matrix)
-{
+void Shader::SetMatrix4(const char* name, const glm::mat4& matrix){
 	glUniformMatrix4fv(glGetUniformLocation(this->mShaderProgram, name), 1, false, glm::value_ptr(matrix));
+}
+
+void Shader::SetVec4f(const char* name, const glm::vec4& vector4) {
+	glUniform4f(glGetUniformLocation(mShaderProgram, name), vector4.x, vector4.y, vector4.z, vector4.t);
 }
 
 void Shader::Enable() {

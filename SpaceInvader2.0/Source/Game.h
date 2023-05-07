@@ -63,6 +63,8 @@ struct Player {
 	bool isAlive = true;
 	glm::vec2 mSize = glm::vec2(100.f,100.f);
 	Hitbox mHitbox;
+	short lives = 3;
+	Uint32 invincibleTime = 0;
 };
 
 class Game
@@ -73,8 +75,8 @@ public:
 		std::cout << "Game constructed" << std::endl;
 	}
 	bool Initialize();
-	void ProcessInput(Uint32 deltaMilliseconds);
-	void UpdateGame(Uint32 deltatime);
+	void ProcessInput();
+	void UpdateGame();
 	void GenerateOutput();
 	void RunLoop();
 	~Game() {
@@ -85,6 +87,7 @@ public:
 	Uint32 mTicksCount=0;
 	SDL_Window* mWindow;
 	SDL_GLContext mContext;
+	Uint32 mDeltaMilliseconds = 0;
 
 	bool mIsRunning = true;
 	float mSpeed = 0;
@@ -92,6 +95,7 @@ public:
 	float mVertical = 0;
 
 	Shader mShader;
+	Shader mShipShader;
 	VertexArray *mVertexArray;
 	std::unordered_map<std::string,Texture> mTexture;
 	std::vector<Bullet> mBullets;

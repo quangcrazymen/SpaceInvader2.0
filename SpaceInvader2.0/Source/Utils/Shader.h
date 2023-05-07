@@ -11,6 +11,7 @@ public:
 	// Unload when not use while not unload everything in the constructor
 	//void Unload();
 	void SetMatrix4(const char* name, const glm::mat4& matrix);
+	void SetVec4f(const char* name, const glm::vec4& vector4);
 
 	void Enable();
 	// void Disable();
