@@ -288,7 +288,7 @@ void Game::GenerateOutput() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Test sin function
-	std::cout << glm::tan(mDeltaMilliseconds) << '\n';
+	//std::cout << glm::tan(mDeltaMilliseconds) << '\n';
 	glm::mat4 model = glm::mat4(1.0f);
 	// This is the ship
 	if (!mPlayer.invincibleTime) {
@@ -299,8 +299,8 @@ void Game::GenerateOutput() {
 		mTexture["Player"].Enable();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
-	else {
-		
+	// @Todo: make the ship fade out when get hit (Add different shader program for the ship)
+	else {	
 		model = glm::translate(model, glm::vec3(mPlayer.mPosition, 0.f));
 		//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
@@ -309,7 +309,6 @@ void Game::GenerateOutput() {
 		mTexture["Player"].Enable();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
-	// @Todo: make the ship fade out when get hit (Add different shader program for the ship)
 
 	// This is invaders
 	for (auto& invader : mInvaders) {
