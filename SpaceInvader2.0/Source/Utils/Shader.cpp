@@ -25,7 +25,7 @@ void Shader::SetMatrix4(const char* name, const glm::mat4& matrix){
 }
 
 void Shader::SetVec4f(const char* name, const glm::vec4& vector4) {
-	glUniform4f(glGetUniformLocation(mShaderProgram, name), vector4.x, vector4.y, vector4.z, vector4.t);
+	glUniform4f(glGetUniformLocation(mShaderProgram, name), vector4.x, vector4.y, vector4.z, vector4.w);
 }
 
 void Shader::Enable() {

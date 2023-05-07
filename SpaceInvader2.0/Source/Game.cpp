@@ -263,16 +263,21 @@ void Game::UpdateGame() {
 	//Update player hitbox position
 	mPlayer.mHitbox.mPosition = mPlayer.mPosition;
 	for (auto& invader : mInvaders) {
-		if(invader.isAlive){
+		if(invader.isAlive and !mPlayer.invincibleTime){
 			if (invader.mHitbox.isColliding(mPlayer.mHitbox)) {
 				std::cout << "Player got hit\n";
 
 				invader.mPosition = glm::vec2(-2000, -2000);
 				invader.mHitbox.mPosition = invader.mPosition;
 				invader.isAlive = false;
+
+				mPlayer.invincibleTime = 5000;
 			}
 		}
+		if (mPlayer.invincibleTime) break;
 	}
+	if(mPlayer.invincibleTime>0)
+		mPlayer.invincibleTime = mPlayer.invincibleTime > 0 ? mPlayer.invincibleTime - 50 : 0;
 	// @Todo: Add collision between enemies bullet and player
 }
 
@@ -295,17 +300,21 @@ void Game::GenerateOutput() {
 		model = glm::translate(model, glm::vec3( mPlayer.mPosition, 0.f));
 		//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
-		mShader.SetMatrix4("model", model);
+		mShipShader.SetMatrix4("model", model);
 		mTexture["Player"].Enable();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 	// @Todo: make the ship fade out when get hit (Add different shader program for the ship)
 	else {	
+		// sin function accept radiant
+		glm::vec4 hitColor(1.0f, 1.0f, 1.0f, sin((unsigned int)SDL_GetTicks()) / 2 + 0.5);
+		//glm::vec4 hitColor(1.f, 0.f, 1.f, 0.f);
 		model = glm::translate(model, glm::vec3(mPlayer.mPosition, 0.f));
 		//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
 		mShipShader.SetMatrix4("model", model);
-		//mShitShader.SetVec4("hitTime", hitTime);
+		mShipShader.SetVec4f("hitColor", hitColor);
+		mShipShader.Enable();
 		mTexture["Player"].Enable();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
@@ -316,6 +325,7 @@ void Game::GenerateOutput() {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(invader.mPosition, 0.f));
 			model = glm::scale(model, glm::vec3(invader.mSize, 0.f));
+			mShader.Enable();
 			mShader.SetMatrix4("model", model);
 			mTexture["Invader"].Enable();
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -330,6 +340,7 @@ void Game::GenerateOutput() {
 			model = glm::scale(model, glm::vec3(bullet.mSize, 0.0f));
 			mShader.SetMatrix4("model", model);
 			mTexture["Bullet"].Enable();
+			mShader.Enable();
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
 	}

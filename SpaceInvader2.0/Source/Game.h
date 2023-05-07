@@ -87,7 +87,7 @@ public:
 	Uint32 mTicksCount=0;
 	SDL_Window* mWindow;
 	SDL_GLContext mContext;
-	Uint32 mDeltaMilliseconds = 0;
+	int mDeltaMilliseconds = 0;
 
 	bool mIsRunning = true;
 	float mSpeed = 0;
@@ -111,5 +111,8 @@ public:
 	// Invaders
 	Invader mInvader;
 	std::vector<Invader> mInvaders;
+
+	// miscellanious
+	float m_u_Value;
 };
 

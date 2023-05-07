@@ -17,5 +17,5 @@ void main()
 {
 	
 	// Sample color from texture
-	outColor = texture(uTexture, fragTexCoord) * hitColor;
+	outColor = texture(uTexture, fragTexCoord) * vec4(1.0f,1.0f,1.0f,1.f);
 }
