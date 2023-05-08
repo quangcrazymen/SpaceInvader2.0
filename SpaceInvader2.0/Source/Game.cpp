@@ -110,8 +110,9 @@ bool Game::Initialize()
 	}
 	// Populate the scene with invaders
 	mInvaders.reserve(100);
-	for (int i = 0; i < 20; ++i) {
-		mInvaders.emplace_back(Invader(mFlyInPositions[i]));
+	for (int i = 0; i < 50; ++i) {
+		//mInvaders.emplace_back(Invader(mFlyInPositions[i]));
+		mInvaders.emplace_back(Invader());
 		mInvaders[i].mHitbox.mPosition = mInvaders[i].mPosition;
 		mInvaders[i].mHitbox.mSize = mInvaders[i].mSize;
 	}
@@ -246,15 +247,23 @@ void Game::UpdateGame() {
 	//}
 	// @todo FPS counter
 	// @todo make the invader fly in use bezier curve
-	//for(auto&pos:mFlyInPositions){
-	//	//mInvaders[i].mPosition = mFlyInPositions[mPositionsIndex - i];
-	//}
-	mPositionsIndex = mPositionsIndex >= mFlyInPositions.size()-1 ?0 : mPositionsIndex+=1;
-	mInvaders[0].mPosition = mFlyInPositions[mPositionsIndex];
-	mInvaders[0].mHitbox.mPosition = mInvaders[0].mPosition;
+	//mPositionsIndex = mPositionsIndex >= mFlyInPositions.size() - 1 ? 0 : mPositionsIndex += 1;
+	//glm::vec2 timeStep = glm::vec2(mDeltaMilliseconds / 1000.f,mDeltaMilliseconds/1000.f);
+	// @todo: fix the speed and the algoritm , because the invaders didn't fly all the way
+	mTotalTimeToTravel = mTotalTimeToTravel >= 1 ? 0 : mTotalTimeToTravel += mDeltaMilliseconds/10000.f;
+	glm::vec2 invader1CurrentPos = de_castejau(mTotalTimeToTravel, testVec2s);
+	mInvaders[0].mPosition = invader1CurrentPos;
+	mInvaders[0].mHitbox.mPosition = invader1CurrentPos;
+		
+	if (mPositionsIndex < mFlyInPositions.size()) {
+		mPositionsIndex++;
+	}
+	// Update position based on precomputed position values
+	//mInvaders[0].mPosition = mFlyInPositions[mPositionsIndex];
+	//mInvaders[0].mHitbox.mPosition = mInvaders[0].mPosition; 
 	for (int i = 1; i < mInvaders.size(); ++i) {
 		if (mPositionsIndex-i > 0 and mPositionsIndex<mFlyInPositions.size()) {
-			mInvaders[i].mPosition = mFlyInPositions[mPositionsIndex-i];
+			mInvaders[i].mPosition = mFlyInPositions[mPositionsIndex - i] ;
 			mInvaders[i].mHitbox.mPosition = mInvaders[i].mPosition;
 		}
 	}

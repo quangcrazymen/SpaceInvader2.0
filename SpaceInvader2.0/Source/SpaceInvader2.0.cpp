@@ -13,12 +13,6 @@ int main(int agrc, char* argv[])
     if (game.Initialize()) {
         game.RunLoop();
     }
-
-    // 
-    //for (float t = 0; t <= 1; t += 0.05f) {
-    //    glm::vec2 result = de_castejau(t, testVec2s);
-    //    std::cout << result.x << ' ' << result.y << std::endl;
-    //}
     return 0;
 }
 

@@ -115,6 +115,8 @@ public:
 	// Trajectory of invaders
 	std::vector<glm::vec2> mFlyInPositions;
 	int mPositionsIndex=0;
+	
+	float mTotalTimeToTravel = 0;
 	// Items
 	// @Todo: Add items into the game
 	//std::vector<Item> mItems;
