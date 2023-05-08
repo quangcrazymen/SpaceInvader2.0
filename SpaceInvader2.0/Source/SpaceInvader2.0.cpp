@@ -15,15 +15,10 @@ int main(int agrc, char* argv[])
     }
 
     // 
-    Hitbox a;
-    Hitbox b;
-    a.mPosition=glm::vec2(5.f, 7.f);
-    a.mSize = glm::vec2(4, 4);
-    b.mPosition = glm::vec2(8.f, 4.f);
-    b.mSize = glm::vec2(4.f, 4.f);
-    if (a.isColliding(b)) {
-        std::cout << "True" << std::endl;
-    }
+    //for (float t = 0; t <= 1; t += 0.05f) {
+    //    glm::vec2 result = de_castejau(t, testVec2s);
+    //    std::cout << result.x << ' ' << result.y << std::endl;
+    //}
     return 0;
 }
 

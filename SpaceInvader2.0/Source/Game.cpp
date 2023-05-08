@@ -4,6 +4,18 @@
 #include "Utils/Shader.h"
 #include "Utils/VertexArray.h"
 #include "Utils/Texture.h"
+
+static std::vector<glm::vec2> testVec2s{ glm::vec2{-400.f,-0.f},glm::vec2{0.f,300.f},glm::vec2{400.f,0.f} };
+glm::vec2 de_castejau(float t, std::vector<glm::vec2> points) {
+	int n = 3;
+	for (int i = 1; i < n; ++i) {
+		for (int j = n - i - 1; j >= 0; --j) {
+			points[j] = points[j] * (1 - t) + points[j + 1] * t;
+		}
+	}
+	return points[0];
+}
+
 bool Game::Initialize()
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
@@ -86,18 +98,20 @@ bool Game::Initialize()
 
 	mTimeBetweenShots = 500;
 
-	mInvader.mPosition = glm::vec2(0.f, 200.f);
-	mInvader.mHitbox.mPosition = mInvader.mPosition;
-	mInvader.mHitbox.mSize = mInvader.mSize;
-
 	// Player
 	mPlayer.mHitbox.mPosition = mPlayer.mPosition;
 	mPlayer.mHitbox.mSize = mPlayer.mSize;
 
+	//std::vector<glm::vec2> positions;
+	mFlyInPositions.reserve(50);
+	for (float t = 0; t < 1; t += 0.02f) {
+		glm::vec2 result = de_castejau(t, testVec2s);
+		mFlyInPositions.push_back(result);
+	}
 	// Populate the scene with invaders
 	mInvaders.reserve(100);
-	for (int i = 0; i < 10; ++i) {
-		mInvaders.emplace_back(Invader(glm::vec2(i * 50.0f, 200.f)));
+	for (int i = 0; i < 1; ++i) {
+		mInvaders.emplace_back(Invader(mFlyInPositions[i]));
 		mInvaders[i].mHitbox.mPosition = mInvaders[i].mPosition;
 		mInvaders[i].mHitbox.mSize = mInvaders[i].mSize;
 	}
@@ -215,6 +229,9 @@ void Game::ProcessInput() {
 		}
 	}
 }
+
+
+
 void Game::UpdateGame() {
 	// lock fps :)
 	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
@@ -228,8 +245,13 @@ void Game::UpdateGame() {
 	//	mTimeSinceLastShot = 0;
 	//}
 	// @todo FPS counter
-
-
+	// @todo make the invader fly in use bezier curve
+	//for(auto&pos:mFlyInPositions){
+	//	//mInvaders[i].mPosition = mFlyInPositions[mPositionsIndex - i];
+	//}
+	mPositionsIndex = mPositionsIndex >= mFlyInPositions.size()-1 ?0 : mPositionsIndex+=1;
+	mInvaders[0].mPosition = mFlyInPositions[mPositionsIndex];
+	mInvaders[0].mHitbox.mPosition = mInvaders[0].mPosition;
 	for (auto& bullet : mBullets) {
 		if (bullet.mActive){
 			bullet.mPosition.y += mSpeed * mDeltaMilliseconds /(float)1000.0;

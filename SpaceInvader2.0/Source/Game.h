@@ -9,6 +9,7 @@
 #include "Utils/Shader.h"
 #include "Utils/VertexArray.h"
 #include "Utils/Texture.h"
+
 struct Hitbox {
 	// https://www.amanotes.com/post/using-swept-aabb-to-detect-and-process-collision
 	glm::vec2 mPosition;
@@ -109,10 +110,13 @@ public:
 	Player mPlayer;
 
 	// Invaders
-	Invader mInvader;
 	std::vector<Invader> mInvaders;
 
-	// miscellanious
-	float m_u_Value;
+	// Trajectory of invaders
+	std::vector<glm::vec2> mFlyInPositions;
+	int mPositionsIndex=0;
+	// Items
+	// @Todo: Add items into the game
+	//std::vector<Item> mItems;
 };
 
