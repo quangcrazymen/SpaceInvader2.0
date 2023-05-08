@@ -110,7 +110,7 @@ bool Game::Initialize()
 	}
 	// Populate the scene with invaders
 	mInvaders.reserve(100);
-	for (int i = 0; i < 1; ++i) {
+	for (int i = 0; i < 20; ++i) {
 		mInvaders.emplace_back(Invader(mFlyInPositions[i]));
 		mInvaders[i].mHitbox.mPosition = mInvaders[i].mPosition;
 		mInvaders[i].mHitbox.mSize = mInvaders[i].mSize;
@@ -252,6 +252,12 @@ void Game::UpdateGame() {
 	mPositionsIndex = mPositionsIndex >= mFlyInPositions.size()-1 ?0 : mPositionsIndex+=1;
 	mInvaders[0].mPosition = mFlyInPositions[mPositionsIndex];
 	mInvaders[0].mHitbox.mPosition = mInvaders[0].mPosition;
+	for (int i = 1; i < mInvaders.size(); ++i) {
+		if (mPositionsIndex-i > 0 and mPositionsIndex<mFlyInPositions.size()) {
+			mInvaders[i].mPosition = mFlyInPositions[mPositionsIndex-i];
+			mInvaders[i].mHitbox.mPosition = mInvaders[i].mPosition;
+		}
+	}
 	for (auto& bullet : mBullets) {
 		if (bullet.mActive){
 			bullet.mPosition.y += mSpeed * mDeltaMilliseconds /(float)1000.0;
