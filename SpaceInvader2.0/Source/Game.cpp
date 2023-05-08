@@ -134,6 +134,9 @@ void Game::RunLoop()
 	// This is projection
 	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
 	mShader.SetMatrix4("projection", projection);
+	mShipShader.Enable();
+	mShipShader.SetMatrix4("projection", projection);
+	
 	// view matrix (camera)
 	// try to use lookAt
 	glm::vec3 cameraPos = glm::vec3(0.f, 0.f, -0.5f);
@@ -150,9 +153,12 @@ void Game::RunLoop()
 	view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
 	view = glm::translate(view, glm::vec3(-400.f, 300.0f, 0.0f));
 	view = glm::rotate(view, glm::radians(-180.0f), glm::vec3(0.f, 0.f, 1.f));
+	mShader.Enable();
 	mShader.SetMatrix4("view", view);
-	mShader.SetMatrix4("model", model);
-	mShader.SetMatrix4("projection", projection);
+	mShipShader.Enable();
+	mShipShader.SetMatrix4("view", view);
+	//mShader.SetMatrix4("model", model);
+	//mShader.SetMatrix4("projection", projection);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (mIsRunning)
@@ -296,25 +302,26 @@ void Game::GenerateOutput() {
 	//std::cout << glm::tan(mDeltaMilliseconds) << '\n';
 	glm::mat4 model = glm::mat4(1.0f);
 	// This is the ship
+	mShader.Enable();
 	if (!mPlayer.invincibleTime) {
 		model = glm::translate(model, glm::vec3( mPlayer.mPosition, 0.f));
 		//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
-		mShipShader.SetMatrix4("model", model);
+		mShader.SetMatrix4("model", model);
 		mTexture["Player"].Enable();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
-	// @Todo: make the ship fade out when get hit (Add different shader program for the ship)
+	// @Todo: make the ship fade out when get hit (Add different shader program for the ship) (fix)
 	else {	
 		// sin function accept radiant
-		glm::vec4 hitColor(1.0f, 1.0f, 1.0f, sin((unsigned int)SDL_GetTicks()) / 2 + 0.5);
+		mShipShader.Enable();
+		glm::vec4 hitColor(1.0f, sin((unsigned int)SDL_GetTicks()) / 2 + 0.5, 1.0f, sin((unsigned int)SDL_GetTicks()) / 2 + 0.5);
 		//glm::vec4 hitColor(1.f, 0.f, 1.f, 0.f);
 		model = glm::translate(model, glm::vec3(mPlayer.mPosition, 0.f));
 		//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
 		mShipShader.SetMatrix4("model", model);
 		mShipShader.SetVec4f("hitColor", hitColor);
-		mShipShader.Enable();
 		mTexture["Player"].Enable();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}

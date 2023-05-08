@@ -11,11 +11,11 @@ out vec4 outColor;
 // This is used for the texture sampling
 uniform sampler2D uTexture;
 
-in vec4 hitColor;
+uniform vec4 hitColor;
 
 void main()
 {
 	
 	// Sample color from texture
-	outColor = texture(uTexture, fragTexCoord) * vec4(1.0f,1.0f,1.0f,1.f);
+	outColor = texture(uTexture, fragTexCoord) * hitColor;
 }
