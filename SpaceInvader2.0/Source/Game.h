@@ -105,6 +105,7 @@ public:
 	short mBulletIndex = 0;
 	Uint32 mTimeSinceLastShot = 0;
 	Uint32 mTimeBetweenShots = 3000;
+	short mCurrentNumOfBullet = 2;
 	
 	// Player
 	Player mPlayer;

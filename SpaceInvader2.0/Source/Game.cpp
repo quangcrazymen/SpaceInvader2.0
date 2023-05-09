@@ -94,7 +94,7 @@ bool Game::Initialize()
 	mSpeed = 400.0f;
 
 	mBullets.reserve(1000);
-	mBullets = std::vector<Bullet>(10, Bullet());
+	mBullets = std::vector<Bullet>(100, Bullet());
 
 	mTimeBetweenShots = 500;
 
@@ -223,10 +223,18 @@ void Game::ProcessInput() {
 		//mBullets[0].mPosition.y += mSpeed * mDeltaMilliseconds / (float)1000.0;
 		if (mBulletIndex == mBullets.size()) mBulletIndex = 0;
 		if (mTimeSinceLastShot >= mTimeBetweenShots) {
-			mBullets[mBulletIndex].mPosition = mPlayer.mPosition;
-			mBullets[mBulletIndex].mActive = true;
-			mBulletIndex++;
-			mTimeSinceLastShot = 0;
+			for (int i = 0; i < mCurrentNumOfBullet; ++i) {
+				mBullets[mBulletIndex].mPosition = mPlayer.mPosition;
+				if (i % 2 == 0) {
+					mBullets[mBulletIndex].mPosition.x -=10.f;
+				}
+				else {
+					mBullets[mBulletIndex].mPosition.x += 10.f;
+				}
+				mBullets[mBulletIndex].mActive = true;
+				mBulletIndex++;
+				mTimeSinceLastShot = 0;
+			}
 		}
 	}
 }
@@ -377,6 +385,7 @@ void Game::GenerateOutput() {
 	}
 
 	// This is bullets
+
 	for (auto& bullet :mBullets) {
 		if (bullet.mActive) {
 			model = glm::mat4(1.0f);
@@ -388,6 +397,7 @@ void Game::GenerateOutput() {
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
 	}
+
 
 	// bezier curve: https://www.geeksforgeeks.org/bezier-curves-in-opengl/
 	// @TODO: Draw a bounding box using different shader;
