@@ -18,7 +18,7 @@ Texture::~Texture()
 	std::cout << "Texture destructed\n";
 }
 
-bool Texture::Load(const std::string& fileName)
+auto Texture::Load(const std::string& fileName) -> bool // trailing return type
 {
 	int channels = 0;
 

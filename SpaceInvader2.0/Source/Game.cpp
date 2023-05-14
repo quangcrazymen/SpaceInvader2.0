@@ -93,9 +93,12 @@ bool Game::Initialize()
 	mTexture["Bullet"].Load("Assets/graphics/bulletRemake.png");
 	mSpeed = 400.0f;
 
+	// Load the bullets
 	mBullets.reserve(1000);
 	mBullets = std::vector<Bullet>(100, Bullet());
-
+	for (auto& i : mBullets) {
+		i.mBulletOwner = bulletOwner::oInvader;
+	}
 	mTimeBetweenShots = 500;
 
 	// Player
@@ -221,16 +224,12 @@ void Game::ProcessInput() {
 
 	if (keyState[SDL_SCANCODE_SPACE]) {
 		//mBullets[0].mPosition.y += mSpeed * mDeltaMilliseconds / (float)1000.0;
-		if (mBulletIndex == mBullets.size()) mBulletIndex = 0;
 		if (mTimeSinceLastShot >= mTimeBetweenShots) {
-			for (int i = 0; i < mCurrentNumOfBullet; ++i) {
+			for (int i = -mCurrentGunLevel +1; i < mCurrentGunLevel; ++i) {
+				if (mBulletIndex == mBullets.size()) mBulletIndex = 0; // check here to make sure mBulletIndex not out of bound
 				mBullets[mBulletIndex].mPosition = mPlayer.mPosition;
-				if (i % 2 == 0) {
-					mBullets[mBulletIndex].mPosition.x -=10.f;
-				}
-				else {
-					mBullets[mBulletIndex].mPosition.x += 10.f;
-				}
+				mBullets[mBulletIndex].mPosition.x += i* mBullets[mBulletIndex].mSize.x;
+				mBullets[mBulletIndex].mBulletOwner = bulletOwner::oPlayer;
 				mBullets[mBulletIndex].mActive = true;
 				mBulletIndex++;
 				mTimeSinceLastShot = 0;
@@ -269,17 +268,34 @@ void Game::UpdateGame() {
 	// Update position based on precomputed position values
 	//mInvaders[0].mPosition = mFlyInPositions[mPositionsIndex];
 	//mInvaders[0].mHitbox.mPosition = mInvaders[0].mPosition; 
+
+	// todo: fix the firerate of invaders 
+	for (auto& i : mInvaders) {
+		i.mElapsedTime += mDeltaMilliseconds / 1000.f;
+		if (i.mElapsedTime > i.mTimeToShoot) {
+			if (mBulletIndex == mBullets.size()) mBulletIndex = 0; // check here to make sure mBulletIndex not out of bound
+			mBullets[mBulletIndex].mPosition = i.mPosition;
+			mBullets[mBulletIndex].mBulletOwner = bulletOwner::oInvader;
+			mBullets[mBulletIndex].mActive = true;
+			mBulletIndex++;
+			std::cout << "fire ";
+			i.mElapsedTime = 0.f;
+		}
+	}
+	// Invaders layout
 	for (int i = 1; i < mInvaders.size(); ++i) {
 		if (mPositionsIndex-i > 0 and mPositionsIndex<mFlyInPositions.size()) {
 			mInvaders[i].mPosition = mFlyInPositions[mPositionsIndex - i] ;
 			mInvaders[i].mHitbox.mPosition = mInvaders[i].mPosition;
 		}
 	}
+	// Bullets position
 	for (auto& bullet : mBullets) {
 		if (bullet.mActive){
-			bullet.mPosition.y += mSpeed * mDeltaMilliseconds /(float)1000.0;
+			if(bullet.mBulletOwner == bulletOwner::oPlayer) bullet.mPosition.y += mSpeed * mDeltaMilliseconds /(float)1000.0;
+			if (bullet.mBulletOwner == bulletOwner::oInvader) bullet.mPosition.y -= mSpeed * mDeltaMilliseconds /(float)1000.0;
 		}
-		if (bullet.mPosition.y > 300) {
+		if (bullet.mPosition.y > 300 or bullet.mPosition.y<-300) {
 			bullet.mPosition.y = -1000;
 			bullet.mPosition.x = -1000;
 			bullet.mActive = false;
@@ -298,7 +314,8 @@ void Game::UpdateGame() {
 	for (auto& bullet: mBullets) {
 		for (auto& invader : mInvaders) {
 			if (invader.isAlive) {
-				if (bullet.mHitbox.isColliding(invader.mHitbox)) {
+				if (bullet.mHitbox.isColliding(invader.mHitbox) 
+					and bullet.mBulletOwner == bulletOwner::oPlayer) {
 					std::cout << "Hit\n";
 					bullet.mPosition = glm::vec2(-1000, -1000);
 					bullet.mHitbox.mPosition = bullet.mPosition;
@@ -314,7 +331,8 @@ void Game::UpdateGame() {
 	//Update player hitbox position
 	mPlayer.mHitbox.mPosition = mPlayer.mPosition;
 	for (auto& invader : mInvaders) {
-		if(invader.isAlive and !mPlayer.invincibleTime){
+		if (mPlayer.invincibleTime) break;
+		if(invader.isAlive){
 			if (invader.mHitbox.isColliding(mPlayer.mHitbox)) {
 				std::cout << "Player got hit\n";
 
@@ -325,11 +343,25 @@ void Game::UpdateGame() {
 				mPlayer.invincibleTime = 5000;
 			}
 		}
-		if (mPlayer.invincibleTime) break;
 	}
-	if(mPlayer.invincibleTime>0)
+
+	// collision between enemies bullet and player
+	for (auto& bullet : mBullets) {
+		if (mPlayer.invincibleTime) break;
+		if (bullet.mActive and bullet.mBulletOwner == bulletOwner::oInvader) {
+			if (bullet.mHitbox.isColliding(mPlayer.mHitbox)) {
+				std::cout << "Player got Hit\n";
+				bullet.mPosition = glm::vec2(-1000, -1000);
+				bullet.mHitbox.mPosition = bullet.mPosition;
+				bullet.mActive = false;
+
+				mPlayer.invincibleTime = 5000;
+			}
+		}
+	}
+	
+	if (mPlayer.invincibleTime > 0)
 		mPlayer.invincibleTime = mPlayer.invincibleTime > 0 ? mPlayer.invincibleTime - 50 : 0;
-	// @Todo: Add collision between enemies bullet and player
 }
 
 void Game::GenerateOutput() {
@@ -343,14 +375,11 @@ void Game::GenerateOutput() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Test sin function
-	//std::cout << glm::tan(mDeltaMilliseconds) << '\n';
 	glm::mat4 model = glm::mat4(1.0f);
 	// This is the ship
 	mShader.Enable();
 	if (!mPlayer.invincibleTime) {
 		model = glm::translate(model, glm::vec3( mPlayer.mPosition, 0.f));
-		//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
 		mShader.SetMatrix4("model", model);
 		mTexture["Player"].Enable();
@@ -391,6 +420,9 @@ void Game::GenerateOutput() {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(bullet.mPosition, 0.0f));
 			model = glm::scale(model, glm::vec3(bullet.mSize, 0.0f));
+			if (bullet.mBulletOwner == bulletOwner::oInvader) {
+				model = glm::rotate(model, glm::radians(180.f), glm::vec3(0.0f, 0.0f, 1.0f));
+			}
 			mShader.SetMatrix4("model", model);
 			mTexture["Bullet"].Enable();
 			mShader.Enable();
@@ -398,8 +430,6 @@ void Game::GenerateOutput() {
 		}
 	}
 
-
-	// bezier curve: https://www.geeksforgeeks.org/bezier-curves-in-opengl/
 	// @TODO: Draw a bounding box using different shader;
 
 	// @TODO: Add Special effect:https://www.khronos.org/opengl/wiki/Array_Texture

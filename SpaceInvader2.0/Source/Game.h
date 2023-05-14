@@ -9,6 +9,9 @@
 #include "Utils/Shader.h"
 #include "Utils/VertexArray.h"
 #include "Utils/Texture.h"
+#include <glm/gtc/random.hpp>
+
+enum struct bulletOwner { oInvader, oPlayer };
 
 struct Hitbox {
 	// https://www.amanotes.com/post/using-swept-aabb-to-detect-and-process-collision
@@ -37,6 +40,7 @@ struct Bullet {
 	float mRotation;
 	bool mActive;
 	glm::vec2 mSize;
+	bulletOwner mBulletOwner;
 };
 struct Invader {
 	Invader()
@@ -54,6 +58,9 @@ struct Invader {
 	bool isAlive = true;
 	glm::vec2 mSize;
 	Hitbox mHitbox;
+	// Time to shoot
+	int mTimeToShoot = glm::linearRand(1, 6);
+	float mElapsedTime = 0.f;
 };
 
 struct Player {
@@ -105,7 +112,7 @@ public:
 	short mBulletIndex = 0;
 	Uint32 mTimeSinceLastShot = 0;
 	Uint32 mTimeBetweenShots = 3000;
-	short mCurrentNumOfBullet = 2;
+	short mCurrentGunLevel = 4;
 	
 	// Player
 	Player mPlayer;
