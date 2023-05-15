@@ -131,7 +131,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>soil2.lib;opengl32.lib;SDL2.lib;SDL2main.lib;glew32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>soil2.lib;opengl32.lib;SDL3.lib;SDL3_ttf.lib;glew32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -153,7 +153,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>soil2.lib;opengl32.lib;SDL2.lib;SDL2main.lib;glew32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>soil2.lib;opengl32.lib;SDL3.lib;glew32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -164,6 +164,7 @@
     <ClCompile Include="Source\Utils\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\SDL3\SDL_ttf.h" />
     <ClInclude Include="Source\Utils\Shader.h" />
     <ClInclude Include="Source\Game.h" />
     <ClInclude Include="Include\glew\glew.h" />
@@ -173,10 +174,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Lib\glew32.dll">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </None>
-    <None Include="Lib\SDL2.dll">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>

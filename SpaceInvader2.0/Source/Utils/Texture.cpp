@@ -1,8 +1,8 @@
 #include <iostream>
 #include "Texture.h"
 #include <SOIL/SOIL2.h>
+#include <SDL3/SDL.h>
 #include <glew/glew.h>
-#include <SDL/SDL.h>
 
 Texture::Texture()
 	:mTextureID(0)

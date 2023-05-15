@@ -50,10 +50,12 @@
     <ClInclude Include="Source\Utils\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\SDL3\SDL_ttf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Lib\glew32.dll" />
-    <None Include="Lib\SDL2.dll" />
     <None Include="Shaders\Shader.vert" />
     <None Include="Shaders\Shader.frag" />
     <None Include="Shaders\ShipShader.frag" />

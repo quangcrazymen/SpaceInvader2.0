@@ -40,8 +40,8 @@ bool Game::Initialize()
 	// Force OpenGL to use hardware acceleration
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
-	mWindow = SDL_CreateWindow("Game Programming in C++ (Chapter 5)", 100, 100,
-		1024, 768, SDL_WINDOW_OPENGL);
+	mWindow = SDL_CreateWindow("Space Invaders",
+		1024, 768, SDL_WINDOW_OPENGL); 
 	if (!mWindow)
 	{
 		SDL_Log("Failed to create window: %s", SDL_GetError());
@@ -119,6 +119,10 @@ bool Game::Initialize()
 		mInvaders[i].mHitbox.mPosition = mInvaders[i].mPosition;
 		mInvaders[i].mHitbox.mSize = mInvaders[i].mSize;
 	}
+
+	// Font
+	TTF_Font* font = TTF_OpenFont("Assets/fonts/Carlito-Regular.ttf", 8);
+
 	return true;
 }
 
@@ -196,7 +200,7 @@ void Game::ProcessInput() {
 	// check the documentation if it's already a event queue
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
-		case SDL_QUIT:
+		case SDL_EVENT_QUIT:
 			mIsRunning = false;
 			break;
 		}

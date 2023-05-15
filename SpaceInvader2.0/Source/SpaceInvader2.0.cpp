@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <glew/glew.h>
-#include <SDL/SDL.h>
+#include <SDL3/SDL.h>
 #include <glm/matrix.hpp>
 #include "Game.h"
 

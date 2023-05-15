@@ -1,6 +1,6 @@
 #pragma once
-#include "SDL/SDL.h"
 #include <glew/glew.h>
+#include <SDL3/SDL.h>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -10,6 +10,7 @@
 #include "Utils/VertexArray.h"
 #include "Utils/Texture.h"
 #include <glm/gtc/random.hpp>
+#include <SDL3/SDL_ttf.h>
 
 enum struct bulletOwner { oInvader, oPlayer };
 
@@ -92,10 +93,10 @@ public:
 		SDL_DestroyWindow(mWindow);
 		delete mVertexArray;
 	}
-	Uint32 mTicksCount=0;
+	Uint64 mTicksCount=0;
 	SDL_Window* mWindow;
 	SDL_GLContext mContext;
-	int mDeltaMilliseconds = 0;
+	Uint64 mDeltaMilliseconds = 0;
 
 	bool mIsRunning = true;
 	float mSpeed = 0;
@@ -110,8 +111,8 @@ public:
 
 	// Bullet
 	short mBulletIndex = 0;
-	Uint32 mTimeSinceLastShot = 0;
-	Uint32 mTimeBetweenShots = 3000;
+	Uint64 mTimeSinceLastShot = 0;
+	Uint64 mTimeBetweenShots = 3000;
 	short mCurrentGunLevel = 4;
 	
 	// Player
@@ -128,5 +129,8 @@ public:
 	// Items
 	// @Todo: Add items into the game
 	//std::vector<Item> mItems;
+
+	// @Todo: make the UI
+	std::unordered_map<int, TTF_Font*> mFontData;
 };
 
