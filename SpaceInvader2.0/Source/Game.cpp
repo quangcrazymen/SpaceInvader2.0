@@ -5,6 +5,9 @@
 #include "Utils/VertexArray.h"
 #include "Utils/Texture.h"
 
+const int WIDTH = 1024;
+const int HEIGHT = 768;
+
 static std::vector<glm::vec2> testVec2s{ glm::vec2{-400.f,-0.f},glm::vec2{0.f,300.f},glm::vec2{400.f,0.f} };
 glm::vec2 de_castejau(float t, std::vector<glm::vec2> points) {
 	int n = 3;
@@ -15,7 +18,117 @@ glm::vec2 de_castejau(float t, std::vector<glm::vec2> points) {
 	}
 	return points[0];
 }
+static void SDL_GL_Enter2DMode(int width, int height)
+{
+	/* Note, there may be other things you need to change,
+	   depending on how you have your OpenGL state set up.
+	*/
+	glPushAttrib(GL_ENABLE_BIT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_2D);
 
+	/* This allows alpha blending of 2D textures with the scene */
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glViewport(0, 0, width, height);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glOrtho(0.0, (GLdouble)width, (GLdouble)height, 0.0, 0.0, 1.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+}
+
+static void SDL_GL_Leave2DMode(void)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glPopAttrib();
+}
+static int power_of_two(int input)
+{
+	int value = 1;
+
+	while (value < input) {
+		value <<= 1;
+	}
+	return value;
+}
+
+static GLuint SDL_GL_LoadTexture(SDL_Surface* surface, GLfloat* texcoord)
+{
+	GLuint texture;
+	int w, h;
+	SDL_Surface* image;
+	SDL_Rect area;
+	Uint8  saved_alpha;
+	SDL_BlendMode saved_mode;
+
+	/* Use the surface width and height expanded to powers of 2 */
+	w = power_of_two(surface->w);
+	h = power_of_two(surface->h);
+	texcoord[0] = 0.0f;         /* Min X */
+	texcoord[1] = 0.0f;         /* Min Y */
+	texcoord[2] = (GLfloat)surface->w / w;  /* Max X */
+	texcoord[3] = (GLfloat)surface->h / h;  /* Max Y */
+
+	image = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_RGBA32);
+	if (image == NULL) {
+		return 0;
+	}
+
+	/* Save the alpha blending attributes */
+	SDL_GetSurfaceAlphaMod(surface, &saved_alpha);
+	SDL_SetSurfaceAlphaMod(surface, 0xFF);
+	SDL_GetSurfaceBlendMode(surface, &saved_mode);
+	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+
+	/* Copy the surface into the GL texture image */
+	area.x = 0;
+	area.y = 0;
+	area.w = surface->w;
+	area.h = surface->h;
+	SDL_BlitSurface(surface, &area, image, &area);
+
+	/* Restore the alpha blending attributes */
+	SDL_SetSurfaceAlphaMod(surface, saved_alpha);
+	SDL_SetSurfaceBlendMode(surface, saved_mode);
+
+	/* Create an OpenGL texture for the image */
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D,
+		0,
+		GL_RGBA,
+		w, h,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		image->pixels);
+	SDL_DestroySurface(image); /* No longer needed */
+
+	return texture;
+}
+static void cleanup(int exitcode)
+{
+	TTF_Quit();
+	SDL_Quit();
+	exit(exitcode);
+}
 bool Game::Initialize()
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
@@ -41,7 +154,7 @@ bool Game::Initialize()
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
 	mWindow = SDL_CreateWindow("Space Invaders",
-		1024, 768, SDL_WINDOW_OPENGL); 
+		WIDTH, HEIGHT, SDL_WINDOW_OPENGL); 
 	if (!mWindow)
 	{
 		SDL_Log("Failed to create window: %s", SDL_GetError());
@@ -120,8 +233,50 @@ bool Game::Initialize()
 		mInvaders[i].mHitbox.mSize = mInvaders[i].mSize;
 	}
 
+	// todo: render some text on the screen
+	int ptsize = 30;
+	// Render and center the message
+	/* Initialize the TTF library */
+	if (TTF_Init() < 0) {
+		fprintf(stderr, "Couldn't initialize TTF: %s\n", SDL_GetError());
+		SDL_Quit();
+	}
 	// Font
-	TTF_Font* font = TTF_OpenFont("Assets/fonts/Carlito-Regular.ttf", 8);
+	std::string fontPath ="Assets/fonts/Carlito-Regular.ttf" ;
+	mFont = TTF_OpenFont(fontPath.c_str(), ptsize);//////////////////////////
+	if (!mFont) {
+		fprintf(stderr, "Couldn't load %d pt font from %s: %s\n",
+			ptsize, fontPath.c_str(), SDL_GetError());
+		cleanup(2);
+	}
+	TTF_SetFontStyle(mFont, TTF_STYLE_NORMAL);
+
+	std::string message = "Quang day";
+	SDL_Surface* text = TTF_RenderText_Blended(mFont, message.c_str(), SDL_Color(0x00, 0x00, 0x00, 0));
+
+	if (!text) {
+		fprintf(stderr, "Couldn't render text: %s\n", SDL_GetError());
+		TTF_CloseFont(mFont);
+		cleanup(2);
+	}
+
+	x = (WIDTH - text->w) / 2;
+	y = (HEIGHT - text->h) / 2;
+	w = text->w;
+	h = text->h;
+	
+	// Convert text -> texture
+	//GLfloat texcoord[4];
+	glGetError();
+	mFontTexture = SDL_GL_LoadTexture(text, mFontTexCoord);
+	GLenum gl_error;
+	if ((gl_error = glGetError()) != GL_NO_ERROR) {
+		/* If this failed, the text may exceed texture size limits */
+		printf("Warning: Couldn't create texture: 0x%x\n", gl_error);
+	}
+
+	/* We don't need the original text surface anymore */
+	SDL_DestroySurface(text);
 
 	return true;
 }
@@ -434,9 +589,20 @@ void Game::GenerateOutput() {
 		}
 	}
 
+	// Render some text
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(200.f,100.f, 0.f));
+	model = glm::scale(model, glm::vec3(60.f,30.f, 0.f));
+	mShader.Enable();
+	mShader.SetMatrix4("model", model);
+	//mTexture["Invader"].Enable();
+	glBindTexture(GL_TEXTURE_2D, mFontTexture);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 	// @TODO: Draw a bounding box using different shader;
 
 	// @TODO: Add Special effect:https://www.khronos.org/opengl/wiki/Array_Texture
 
 	SDL_GL_SwapWindow(mWindow);
 }
+

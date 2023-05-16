@@ -92,6 +92,7 @@ public:
 		std::cout << "Game destructed" << std::endl;
 		SDL_DestroyWindow(mWindow);
 		delete mVertexArray;
+		TTF_CloseFont(mFont);
 	}
 	Uint64 mTicksCount=0;
 	SDL_Window* mWindow;
@@ -131,6 +132,10 @@ public:
 	//std::vector<Item> mItems;
 
 	// @Todo: make the UI
-	std::unordered_map<int, TTF_Font*> mFontData;
+	//std::unordered_map<int, TTF_Font*> mFontData;
+	TTF_Font* mFont;
+	GLuint mFontTexture;
+	GLfloat mFontTexCoord[4];
+	int x, y, w, h;
 };
 
