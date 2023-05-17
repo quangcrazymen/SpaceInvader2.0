@@ -157,6 +157,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Bullet.cpp" />
+    <ClCompile Include="Source\Invader.cpp" />
+    <ClCompile Include="Source\Actor.cpp" />
+    <ClCompile Include="Source\Ship.cpp" />
     <ClCompile Include="Source\Utils\Shader.cpp" />
     <ClCompile Include="Source\Game.cpp" />
     <ClCompile Include="Source\SpaceInvader2.0.cpp" />
@@ -164,7 +168,11 @@
     <ClCompile Include="Source\Utils\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Bullet.h" />
     <ClInclude Include="Include\SDL3\SDL_ttf.h" />
+    <ClInclude Include="Source\Invader.h" />
+    <ClInclude Include="Source\Actor.h" />
+    <ClInclude Include="Source\Ship.h" />
     <ClInclude Include="Source\Utils\Shader.h" />
     <ClInclude Include="Source\Game.h" />
     <ClInclude Include="Include\glew\glew.h" />

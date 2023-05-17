@@ -11,6 +11,8 @@
 #include "Utils/Texture.h"
 #include <glm/gtc/random.hpp>
 #include <SDL3/SDL_ttf.h>
+//#include "Ship.h"
+
 
 enum struct bulletOwner { oInvader, oPlayer };
 
@@ -118,6 +120,7 @@ public:
 	
 	// Player
 	Player mPlayer;
+	//Ship mShip;
 
 	// Invaders
 	std::vector<Invader> mInvaders;
@@ -136,6 +139,5 @@ public:
 	TTF_Font* mFont;
 	GLuint mFontTexture;
 	GLfloat mFontTexCoord[4];
-	int x, y, w, h;
 };
 

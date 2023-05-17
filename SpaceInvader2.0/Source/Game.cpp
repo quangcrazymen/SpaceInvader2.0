@@ -234,7 +234,7 @@ bool Game::Initialize()
 	}
 
 	// todo: render some text on the screen
-	int ptsize = 30;
+	int ptsize = 20;
 	// Render and center the message
 	/* Initialize the TTF library */
 	if (TTF_Init() < 0) {
@@ -251,6 +251,8 @@ bool Game::Initialize()
 	}
 	TTF_SetFontStyle(mFont, TTF_STYLE_NORMAL);
 
+	// Make array to store texture number from 0 -> 9
+	//vector<
 	std::string message = "Quang day";
 	SDL_Surface* text = TTF_RenderText_Blended(mFont, message.c_str(), SDL_Color(0x00, 0x00, 0x00, 0));
 
@@ -260,11 +262,6 @@ bool Game::Initialize()
 		cleanup(2);
 	}
 
-	x = (WIDTH - text->w) / 2;
-	y = (HEIGHT - text->h) / 2;
-	w = text->w;
-	h = text->h;
-	
 	// Convert text -> texture
 	//GLfloat texcoord[4];
 	glGetError();
@@ -274,6 +271,9 @@ bool Game::Initialize()
 		/* If this failed, the text may exceed texture size limits */
 		printf("Warning: Couldn't create texture: 0x%x\n", gl_error);
 	}
+	std::cout << text->w << ' ' << text->h <<std::endl;
+	std::cout << power_of_two(3)<<std::endl;
+
 
 	/* We don't need the original text surface anymore */
 	SDL_DestroySurface(text);
@@ -590,13 +590,14 @@ void Game::GenerateOutput() {
 	}
 
 	// Render some text
+	glBindTexture(GL_TEXTURE_2D, mFontTexture);
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(200.f,100.f, 0.f));
-	model = glm::scale(model, glm::vec3(60.f,30.f, 0.f));
+	//model = glm::translate(model, glm::vec3(-WIDTH/2.f + 30.f,HEIGHT/2.f-15.f, 0.f));
+	model = glm::translate(model, glm::vec3(-340.f,250.f, 0.f));
+	model = glm::scale(model, glm::vec3(88.f,20.f, 0.f));
 	mShader.Enable();
 	mShader.SetMatrix4("model", model);
 	//mTexture["Invader"].Enable();
-	glBindTexture(GL_TEXTURE_2D, mFontTexture);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	// @TODO: Draw a bounding box using different shader;

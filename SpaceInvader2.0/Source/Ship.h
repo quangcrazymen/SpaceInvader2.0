@@ -5,25 +5,16 @@ class Ship :
     public Actor
 {
 public:
-    Ship(std::unique_ptr<std::vector<RenderComponent>> renderer) :Actor(std:: move(renderer)) {
-        mIndex = 0;
-        mPosition = glm::vec2(200, 200);
-        mScale = glm::vec2(100, 100);
+    Ship(){
+        mPosition = glm::vec2(0.0f, 0.0f);
+        mSize = glm::vec2(100.f, 100.f);
         mRotation = 0;
+        mActive = true;
+        mSpeed = 200.f;
     }
-    //~Ship() {
+    //~Ship() {}
 
-    //}
-    void ActorInput(const Uint8* keyState) {
-        float forwardSpeed = 0.0f;
-        if (keyState[SDL_SCANCODE_W]) {
-            mPosition.y += 10;
-        }
-        if (keyState[SDL_SCANCODE_S]) {
-            mPosition.x -= 10;
-        }
-    }
-
-    //std::unique_ptr<std::vector<RenderComponent>> renderer;
+    short lives = 3;
+    Uint32 invincibleTime = 0;
 };
 
