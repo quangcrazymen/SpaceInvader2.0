@@ -5,6 +5,7 @@
 class Invader :
     public Actor
 {
+public:
 	Invader(){
 		mSize = glm::vec2(30.f, 40.f);
 		mPosition = glm::vec2(200.f, 200.f);

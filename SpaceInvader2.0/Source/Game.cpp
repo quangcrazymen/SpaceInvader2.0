@@ -7,7 +7,6 @@
 
 const int WIDTH = 1024;
 const int HEIGHT = 768;
-
 static std::vector<glm::vec2> testVec2s{ glm::vec2{-400.f,-0.f},glm::vec2{0.f,300.f},glm::vec2{400.f,0.f} };
 glm::vec2 de_castejau(float t, std::vector<glm::vec2> points) {
 	int n = 3;
@@ -201,10 +200,10 @@ bool Game::Initialize()
 	mVertexArray = new VertexArray(vertices, 4, indices, 6);
 	mShader.Load("Shaders/Shader.vert", "Shaders/Shader.frag");
 	mShipShader.Load("Shaders/Shader.vert", "Shaders/ShipShader.frag");
+	mBoxShader.Load("Shaders/Shader.vert", "Shaders/BoxShader.frag");
 	mTexture["Player"].Load("Assets/graphics/player.png");
 	mTexture["Invader"].Load("Assets/graphics/a1.png");
 	mTexture["Bullet"].Load("Assets/graphics/bulletRemake.png");
-	mSpeed = 400.0f;
 
 	// Load the bullets
 	mBullets.reserve(1000);
@@ -214,9 +213,10 @@ bool Game::Initialize()
 	}
 	mTimeBetweenShots = 500;
 
-	// Player
-	mPlayer.mHitbox.mPosition = mPlayer.mPosition;
-	mPlayer.mHitbox.mSize = mPlayer.mSize;
+	// @todo: fix player hitbox position
+	// Player 
+	mShip.mHitbox.mPosition = mShip.mPosition;
+	mShip.mHitbox.mSize = mShip.mSize;
 
 	//std::vector<glm::vec2> positions;
 	mFlyInPositions.reserve(50);
@@ -260,6 +260,7 @@ bool Game::Initialize()
 		fprintf(stderr, "Couldn't render text: %s\n", SDL_GetError());
 		TTF_CloseFont(mFont);
 		cleanup(2);
+		return false;
 	}
 
 	// Convert text -> texture
@@ -271,9 +272,6 @@ bool Game::Initialize()
 		/* If this failed, the text may exceed texture size limits */
 		printf("Warning: Couldn't create texture: 0x%x\n", gl_error);
 	}
-	std::cout << text->w << ' ' << text->h <<std::endl;
-	std::cout << power_of_two(3)<<std::endl;
-
 
 	/* We don't need the original text surface anymore */
 	SDL_DestroySurface(text);
@@ -283,6 +281,7 @@ bool Game::Initialize()
 
 void Game::RunLoop()
 {
+	// @todo: add level for the game
 	mVertexArray->Enable();
 	// Load Texture
 	//Texture texture;
@@ -328,20 +327,19 @@ void Game::RunLoop()
 	glm::mat4 view;
 	// change coordinate system with the player ship being the origin/////////////////////////
 	view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-	view = glm::translate(view, glm::vec3(-400.f, 300.0f, 0.0f));
+
+	// @todo: adjust view based on screen scale
+	view = glm::translate(view, glm::vec3(-400.f, 300.f, 0.0f));
+	//view = glm::translate(view, glm::vec3(-WIDTH/2.f + mShip.mSize.x, HEIGHT/2.f-mShip.mSize.y, 0.0f));
 	view = glm::rotate(view, glm::radians(-180.0f), glm::vec3(0.f, 0.f, 1.f));
 	mShader.Enable();
 	mShader.SetMatrix4("view", view);
 	mShipShader.Enable();
 	mShipShader.SetMatrix4("view", view);
-	//mShader.SetMatrix4("model", model);
-	//mShader.SetMatrix4("projection", projection);
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (mIsRunning)
 	{
 		mDeltaMilliseconds = SDL_GetTicks() - mTicksCount; // ~16ms
-		//std::cout << 1000/ deltaTime << '\n';
 		mTicksCount = SDL_GetTicks();
 		ProcessInput();
 		UpdateGame();
@@ -365,28 +363,27 @@ void Game::ProcessInput() {
 		mIsRunning = false;
 	}
 	if (keyState[SDL_SCANCODE_W]) {
-		mPlayer.mPosition.y += mSpeed * mDeltaMilliseconds / (float)1000.0;
+		mShip.mPosition.y += mShip.mSpeed * mDeltaMilliseconds / (float)1000.0;
 	}
 
 	if (keyState[SDL_SCANCODE_S]) {
-		mPlayer.mPosition.y -= mSpeed * mDeltaMilliseconds / (float)1000.0;
+		mShip.mPosition.y -= mShip.mSpeed * mDeltaMilliseconds / (float)1000.0;
 	}
 
 	if (keyState[SDL_SCANCODE_D]) {
-		mPlayer.mPosition.x += mSpeed * mDeltaMilliseconds / (float)1000.0;
+		mShip.mPosition.x += mShip.mSpeed * mDeltaMilliseconds / (float)1000.0;
 	}
 
 	if (keyState[SDL_SCANCODE_A]) {
-		mPlayer.mPosition.x -= mSpeed * mDeltaMilliseconds / (float)1000.0;
+		mShip.mPosition.x -= mShip.mSpeed * mDeltaMilliseconds / (float)1000.0;
 	}
 	mTimeSinceLastShot += mDeltaMilliseconds;
 
 	if (keyState[SDL_SCANCODE_SPACE]) {
-		//mBullets[0].mPosition.y += mSpeed * mDeltaMilliseconds / (float)1000.0;
 		if (mTimeSinceLastShot >= mTimeBetweenShots) {
 			for (int i = -mCurrentGunLevel +1; i < mCurrentGunLevel; ++i) {
 				if (mBulletIndex == mBullets.size()) mBulletIndex = 0; // check here to make sure mBulletIndex not out of bound
-				mBullets[mBulletIndex].mPosition = mPlayer.mPosition;
+				mBullets[mBulletIndex].mPosition = mShip.mPosition;
 				mBullets[mBulletIndex].mPosition.x += i* mBullets[mBulletIndex].mSize.x;
 				mBullets[mBulletIndex].mBulletOwner = bulletOwner::oPlayer;
 				mBullets[mBulletIndex].mActive = true;
@@ -406,7 +403,7 @@ void Game::UpdateGame() {
 	// Auto shoot for debug
 	//if (mTimeSinceLastShot >= mTimeBetweenShots) {
 	//	if (mBulletIndex == mBullets.size()) mBulletIndex = 0;
-	//	mBullets[mBulletIndex].mPosition = mPlayer.mPosition;
+	//	mBullets[mBulletIndex].mPosition = mShip.mPosition;
 	//	mBullets[mBulletIndex].mActive = true;
 	//	mBulletIndex++;
 	//	mTimeSinceLastShot = 0;
@@ -451,8 +448,8 @@ void Game::UpdateGame() {
 	// Bullets position
 	for (auto& bullet : mBullets) {
 		if (bullet.mActive){
-			if(bullet.mBulletOwner == bulletOwner::oPlayer) bullet.mPosition.y += mSpeed * mDeltaMilliseconds /(float)1000.0;
-			if (bullet.mBulletOwner == bulletOwner::oInvader) bullet.mPosition.y -= mSpeed * mDeltaMilliseconds /(float)1000.0;
+			if(bullet.mBulletOwner == bulletOwner::oPlayer) bullet.mPosition.y += bullet.mSpeed * mDeltaMilliseconds /(float)1000.0;
+			if (bullet.mBulletOwner == bulletOwner::oInvader) bullet.mPosition.y -= bullet.mSpeed * mDeltaMilliseconds /(float)1000.0;
 		}
 		if (bullet.mPosition.y > 300 or bullet.mPosition.y<-300) {
 			bullet.mPosition.y = -1000;
@@ -472,7 +469,7 @@ void Game::UpdateGame() {
 	// Draw lines: https://stackoverflow.com/questions/14486291/how-to-draw-line-in-opengl
 	for (auto& bullet: mBullets) {
 		for (auto& invader : mInvaders) {
-			if (invader.isAlive) {
+			if (invader.mActive) {
 				if (bullet.mHitbox.isColliding(invader.mHitbox) 
 					and bullet.mBulletOwner == bulletOwner::oPlayer) {
 					std::cout << "Hit\n";
@@ -482,45 +479,45 @@ void Game::UpdateGame() {
 
 					invader.mPosition = glm::vec2(-2000, -2000);
 					invader.mHitbox.mPosition = invader.mPosition;
-					invader.isAlive = false;
+					invader.mActive = false;
 				}
 			}
 		}
 	}
 	//Update player hitbox position
-	mPlayer.mHitbox.mPosition = mPlayer.mPosition;
+	mShip.mHitbox.mPosition = mShip.mPosition;
 	for (auto& invader : mInvaders) {
-		if (mPlayer.invincibleTime) break;
-		if(invader.isAlive){
-			if (invader.mHitbox.isColliding(mPlayer.mHitbox)) {
+		if (mShip.invincibleTime) break;
+		if(invader.mActive){
+			if (invader.mHitbox.isColliding(mShip.mHitbox)) {
 				std::cout << "Player got hit\n";
 
 				invader.mPosition = glm::vec2(-2000, -2000);
 				invader.mHitbox.mPosition = invader.mPosition;
-				invader.isAlive = false;
+				invader.mActive = false;
 
-				mPlayer.invincibleTime = 5000;
+				mShip.invincibleTime = 5000;
 			}
 		}
 	}
 
 	// collision between enemies bullet and player
 	for (auto& bullet : mBullets) {
-		if (mPlayer.invincibleTime) break;
+		if (mShip.invincibleTime) break;
 		if (bullet.mActive and bullet.mBulletOwner == bulletOwner::oInvader) {
-			if (bullet.mHitbox.isColliding(mPlayer.mHitbox)) {
+			if (bullet.mHitbox.isColliding(mShip.mHitbox)) {
 				std::cout << "Player got Hit\n";
 				bullet.mPosition = glm::vec2(-1000, -1000);
 				bullet.mHitbox.mPosition = bullet.mPosition;
 				bullet.mActive = false;
 
-				mPlayer.invincibleTime = 5000;
+				mShip.invincibleTime = 5000;
 			}
 		}
 	}
 	
-	if (mPlayer.invincibleTime > 0)
-		mPlayer.invincibleTime = mPlayer.invincibleTime > 0 ? mPlayer.invincibleTime - 50 : 0;
+	if (mShip.invincibleTime > 0)
+		mShip.invincibleTime = mShip.invincibleTime > 0 ? mShip.invincibleTime - 50 : 0;
 }
 
 void Game::GenerateOutput() {
@@ -537,8 +534,8 @@ void Game::GenerateOutput() {
 	glm::mat4 model = glm::mat4(1.0f);
 	// This is the ship
 	mShader.Enable();
-	if (!mPlayer.invincibleTime) {
-		model = glm::translate(model, glm::vec3( mPlayer.mPosition, 0.f));
+	if (!mShip.invincibleTime) {
+		model = glm::translate(model, glm::vec3( mShip.mPosition, 0.f));
 		model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
 		mShader.SetMatrix4("model", model);
 		mTexture["Player"].Enable();
@@ -550,7 +547,7 @@ void Game::GenerateOutput() {
 		mShipShader.Enable();
 		glm::vec4 hitColor(1.0f, sin((unsigned int)SDL_GetTicks()) / 2 + 0.5, 1.0f, sin((unsigned int)SDL_GetTicks()) / 2 + 0.5);
 		//glm::vec4 hitColor(1.f, 0.f, 1.f, 0.f);
-		model = glm::translate(model, glm::vec3(mPlayer.mPosition, 0.f));
+		model = glm::translate(model, glm::vec3(mShip.mPosition, 0.f));
 		//model = glm::rotate(model, glm::radians(20.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(100.f, 100.f, 0.f));
 		mShipShader.SetMatrix4("model", model);
@@ -561,16 +558,34 @@ void Game::GenerateOutput() {
 
 	// This is invaders
 	for (auto& invader : mInvaders) {
-		if (invader.isAlive) {
+		if (invader.mActive) {
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(invader.mPosition, 0.f));
 			model = glm::scale(model, glm::vec3(invader.mSize, 0.f));
+			mTexture["Invader"].Enable();
 			mShader.Enable();
 			mShader.SetMatrix4("model", model);
-			mTexture["Invader"].Enable();
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			//model = glm::mat4(1.0f);
+			//model = glm::translate(model, glm::vec3(invader.mHitbox.mPosition, 0.0f));
+			//model = glm::scale(model, glm::vec3(invader.mHitbox.mSize, 0.f));
+			//// Use different shader
+			////glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			//mBoxShader.Enable();
+			//mBoxShader.SetMatrix4("model", model);
+			//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
 	}
+	//model = glm::mat4(1.0f);
+	//model = glm::translate(model, glm::vec3(100.f,100.f, 0.0f));
+	//model = glm::scale(model, glm::vec3(100.f,40.f, 0.f));
+	//// Use different shader
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//mBoxShader.Enable();
+	//mBoxShader.SetMatrix4("model", model);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	// This is bullets
 

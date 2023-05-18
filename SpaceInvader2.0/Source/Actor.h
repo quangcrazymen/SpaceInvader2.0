@@ -45,7 +45,5 @@ public:
 	Hitbox mHitbox;
 	float mSpeed = 0;
 	bool mActive;
-	//bulletOwner mBulletOwner;
-
 };
 

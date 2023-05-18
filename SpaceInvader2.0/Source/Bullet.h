@@ -3,6 +3,7 @@
 class Bullet :
     public Actor
 {
+public:
     Bullet() {
         mPosition = glm::vec2(-1000.0f, -1000.0f);
         mRotation = 0.f;
